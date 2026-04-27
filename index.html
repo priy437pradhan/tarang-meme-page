@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tarang+ Meme Battle: Challenge Accepted! 💥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@400;600;700&family=Anton&display=swap" rel="stylesheet">
+
+<style>
+  /* ===== Reset & Base ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Fredoka', sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+    line-height: 1.6;
+    /* Tarang brand gradient: deep blue → red → gold */
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255, 195, 13, 0.25), transparent 40%),
+      radial-gradient(circle at 80% 30%, rgba(237, 27, 36, 0.30), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(12, 77, 161, 0.45), transparent 50%),
+      linear-gradient(135deg, #0C4DA1 0%, #2A66AF 25%, #ED1B24 70%, #FFC30D 100%);
+    background-size: 200% 200%;
+    background-attachment: fixed;
+    animation: bgShift 18s ease infinite;
+    min-height: 100vh;
+  }
+  @keyframes bgShift {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+
+  /* ===== Floating emoji background layer ===== */
+  .emoji-rain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .emoji-rain span {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.55;
+    animation: floatUp linear infinite;
+    will-change: transform;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.7; }
+    100% { transform: translateY(-15vh) rotate(360deg) scale(1.1); opacity: 0; }
+  }
+
+  /* ===== Container ===== */
+  .container {
+    position: relative;
+    z-index: 2;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    position: relative;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 215, 2, 0.6);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    animation: pulse 2s ease-in-out infinite;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 2, 0.7); }
+    50%      { transform: scale(1.04); box-shadow: 0 0 0 12px rgba(255, 215, 2, 0); }
+  }
+
+  h1.title {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: 2px;
+    text-shadow:
+      4px 4px 0 #ED1B24,
+      8px 8px 0 #0C4DA1,
+      12px 12px 30px rgba(0,0,0,0.4);
+    margin-bottom: 1rem;
+    animation: titleBounce 3s ease-in-out infinite;
+  }
+  @keyframes titleBounce {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50%      { transform: translateY(-8px) rotate(1deg); }
+  }
+
+  .headline {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    color: #FFD602;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  }
+  .tagline {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    color: #fff;
+  }
+  .tagline .money {
+    display: inline-block;
+    animation: wiggle 1.5s ease-in-out infinite;
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-8deg) scale(1); }
+    50%      { transform: rotate(8deg) scale(1.2); }
+  }
+
+  .hero-desc {
+    max-width: 650px;
+    margin: 0 auto 2rem;
+    font-size: 1.1rem;
+    opacity: 0.95;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #FFD602, #FFC30D);
+    color: #0C4DA1;
+    padding: 1.1rem 2.5rem;
+    border-radius: 50px;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    text-transform: uppercase;
+    border: 3px solid #fff;
+    box-shadow: 0 10px 30px rgba(237, 27, 36, 0.5), inset 0 -4px 0 rgba(0,0,0,0.15);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn:hover {
+    transform: translateY(-4px) scale(1.05) rotate(-1deg);
+    box-shadow: 0 15px 40px rgba(255, 215, 2, 0.7);
+  }
+  .btn:active { transform: translateY(0) scale(0.98); }
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    transition: left 0.6s;
+  }
+  .btn:hover::before { left: 100%; }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #ED1B24, #b30810);
+    color: #fff;
+  }
+
+  /* ===== Sections ===== */
+  .section {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section h2 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    margin-bottom: 1.5rem;
+    letter-spacing: 1.5px;
+    color: #FFD602;
+    text-shadow: 3px 3px 0 #ED1B24;
+  }
+
+  /* ===== Steps ===== */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+    list-style: none;
+  }
+  .steps li {
+    background: rgba(255,255,255,0.1);
+    border: 2px dashed rgba(255, 215, 2, 0.5);
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem;
+    position: relative;
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+  .steps li:hover {
+    transform: translateY(-6px) rotate(-1deg);
+    background: rgba(255,255,255,0.18);
+    border-color: #FFD602;
+  }
+  .steps .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    background: #ED1B24;
+    color: #fff;
+    border-radius: 50%;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    border: 3px solid #FFD602;
+  }
+  .steps strong { display: block; font-size: 1.1rem; margin-bottom: 0.4rem; color: #FFD602; }
+
+  /* ===== Download Box ===== */
+  .download-box {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(237,27,36,0.3), rgba(12,77,161,0.3));
+    border: 3px solid #FFD602;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    margin-top: 1rem;
+  }
+  .download-box p { margin-bottom: 1.25rem; font-size: 1.1rem; }
+
+  /* ===== Rules list ===== */
+  .rules {
+    list-style: none;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .rules li {
+    background: rgba(0,0,0,0.2);
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #FFD602;
+    border-radius: 8px;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+  .rules li:hover {
+    transform: translateX(8px);
+    border-left-color: #ED1B24;
+  }
+  .rules li strong { color: #FFD602; }
+
+  /* ===== Prizes ===== */
+  .prizes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .prize-card {
+    background: linear-gradient(135deg, rgba(255,215,2,0.2), rgba(237,27,36,0.2));
+    border: 2px solid rgba(255, 215, 2, 0.4);
+    border-radius: 16px;
+    padding: 1.75rem;
+    text-align: center;
+    transition: transform 0.4s ease;
+  }
+  .prize-card:hover { transform: scale(1.05) rotate(1deg); }
+  .prize-card .icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+  }
+  .prize-card h3 {
+    font-family: 'Anton', sans-serif;
+    color: #FFD602;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+  }
+
+  /* ===== Tips ===== */
+  .tips {
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+  }
+  .tips li {
+    padding: 1rem 1.25rem;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    transition: background 0.3s ease;
+  }
+  .tips li:hover { background: rgba(255,215,2,0.15); }
+  .tips .tip-icon { font-size: 1.5rem; }
+
+  /* ===== Final CTA ===== */
+  .final-cta {
+    text-align: center;
+    margin: 3rem 0 1rem;
+  }
+  .final-cta h2 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 1.5rem;
+    color: #FFD602;
+    text-shadow: 4px 4px 0 #ED1B24;
+  }
+
+  /* ===== Click burst (emoji on click) ===== */
+  .burst {
+    position: fixed;
+    pointer-events: none;
+    font-size: 2rem;
+    z-index: 9999;
+    animation: burstFly 1s ease-out forwards;
+    will-change: transform, opacity;
+  }
+  @keyframes burstFly {
+    0%   { transform: translate(0,0) scale(0.5); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity: 0; }
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 600px) {
+    .container { padding: 1rem 1rem 3rem; }
+    .section { padding: 1.75rem 1.25rem; }
+    h1.title { text-shadow: 3px 3px 0 #ED1B24, 6px 6px 0 #0C4DA1; }
+    .btn { padding: 1rem 1.75rem; font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating background emojis -->
+<div class="emoji-rain" id="emojiRain" aria-hidden="true"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="badge">🔥 Odisha's Biggest Meme Showdown 🔥</span>
+    <h1 class="title">Tarang+ Meme Battle<br>Challenge Accepted! 💥</h1>
+    <p class="headline">Memes Don't Make Money? Prove Them Wrong.</p>
+    <p class="tagline">Create. Upload. Win ₹5,000. <span class="money">💰</span></p>
+    <p class="hero-desc">Think you're the funniest creator in Odisha? Tarang+ is handing over the keys to our content library. We provide the clips, you provide the comedy. The best meme takes home the cash! 🎤🎬</p>
+    <a href="#download" class="btn">🎬 Grab the Clips</a>
+  </header>
+
+  <!-- HOW TO ENTER -->
+  <section class="section reveal">
+    <h2>🎬 How to Enter</h2>
+    <ol class="steps">
+      <li>
+        <span class="num">1</span>
+        <strong>Download the Assets 📥</strong>
+        Click the button to access exclusive clips from your favorite Tarang+ series.
+      </li>
+      <li>
+        <span class="num">2</span>
+        <strong>Get Creative 🎨</strong>
+        Edit a video meme, a remix, or a classic static meme using at least one of our clips.
+      </li>
+      <li>
+        <span class="num">3</span>
+        <strong>Post & Tag 📲</strong>
+        Upload your masterpiece to Instagram or Facebook.
+      </li>
+      <li>
+        <span class="num">4</span>
+        <strong>Mandatory Tags 🏷️</strong>
+        Use <em>#TarangPlusMemeBattle</em> and tag <em>@TarangPlus</em> so we can find your entry.
+      </li>
+    </ol>
+  </section>
+
+  <!-- DOWNLOAD CENTER -->
+  <section class="section reveal" id="download">
+    <h2>📥 Download Center</h2>
+    <div class="download-box">
+      <p>Get high-quality, watermark-free clips from our hit series 🎞️</p>
+      <a href="https://drive.google.com/drive/folders/1q-IMlr1PHkJSwRo0hczSpzgUG8apb0hu" target="_blank" rel="noopener" class="btn btn-secondary">⬇️ Download Meme Clips (ZIP) 🎬</a>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section class="section reveal">
+    <h2>⚖️ The Official Rules</h2>
+    <ul class="rules">
+      <li><strong>Originality is King 👑:</strong> Fresh humor only. Stolen memes will be disqualified immediately.</li>
+      <li><strong>Respect the Craft 🙏:</strong> No offensive, derogatory, or hateful content. Keep it funny, not harmful.</li>
+      <li><strong>Duration ⏱️:</strong> Video memes should be between 15 to 60 seconds (perfect for Reels/Shorts).</li>
+      <li><strong>Usage Rights 📜:</strong> By entering, you grant Tarang+ the right to reshare your meme on our official channels (with credit to you!).</li>
+      <li><strong>Deadline 📅:</strong> All entries must be posted by <em>[Insert Date Here]</em>.</li>
+      <li><strong>Winner Selection 🏅:</strong> Based on <em>Creativity (50%)</em> and <em>Audience Engagement/Likes (50%)</em>.</li>
+    </ul>
+  </section>
+
+  <!-- PRIZES -->
+  <section class="section reveal">
+    <h2>🏆 The Prize</h2>
+    <div class="prizes">
+      <div class="prize-card">
+        <span class="icon">💰</span>
+        <h3>Grand Prize</h3>
+        <p>₹5,000 Cash + Featured spot on Tarang+ Social Media handles.</p>
+      </div>
+      <div class="prize-card">
+        <span class="icon">🎁</span>
+        <h3>Runners Up</h3>
+        <p>Exclusive Tarang+ Merchandise and Premium Subscriptions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRO TIPS -->
+  <section class="section reveal">
+    <h2>💡 Pro-Tips for Creators</h2>
+    <ul class="tips">
+      <li><span class="tip-icon">😂</span><div><strong>Relatability:</strong> The best memes make people say "That's so me!"</div></li>
+      <li><span class="tip-icon">🎵</span><div><strong>Audio Matters:</strong> Use trending Odia audio or clear voiceovers to make your edit stand out.</div></li>
+      <li><span class="tip-icon">💬</span><div><strong>Engage:</strong> Reply to comments — the more engagement, the higher your chances of winning!</div></li>
+    </ul>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta reveal">
+    <h2>Ready to Become the Next Meme Lord? 👑</h2>
+    <a href="https://drive.google.com/drive/folders/1q-IMlr1PHkJSwRo0hczSpzgUG8apb0hu" target="_blank" rel="noopener" class="btn">🎬 Grab the Clips & Start Editing 🚀</a>
+  </section>
+
+</div>
+
+<script>
+  /* ===== Floating background emoji generator ===== */
+  const emojis = ['😂','🤣','💀','🔥','💰','🎬','🎤','😎','🤪','🎉','💥','🏆','📸','🎭','✨','👑'];
+  const rain = document.getElementById('emojiRain');
+  const EMOJI_COUNT = 25;
+
+  for (let i = 0; i < EMOJI_COUNT; i++) {
+    const span = document.createElement('span');
+    span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    span.style.left = Math.random() * 100 + 'vw';
+    span.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+    span.style.animationDuration = (10 + Math.random() * 15) + 's';
+    span.style.animationDelay = (Math.random() * 15) + 's';
+    rain.appendChild(span);
+  }
+
+  /* ===== Scroll reveal (IntersectionObserver) ===== */
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  reveals.forEach(el => io.observe(el));
+
+  /* ===== Click burst effect — emojis fly out on click ===== */
+  const burstEmojis = ['😂','💥','🔥','💰','🎉','🤣','✨'];
+  document.addEventListener('click', (e) => {
+    // skip if clicking link/button to avoid blocking action — still create burst
+    const count = 8;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'burst';
+      el.textContent = burstEmojis[Math.floor(Math.random() * burstEmojis.length)];
+      el.style.left = e.clientX + 'px';
+      el.style.top = e.clientY + 'px';
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+      const dist = 80 + Math.random() * 60;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+  });
+
+  /* ===== Button hover wiggle (extra fun) ===== */
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+      btn.style.animation = 'wiggle 0.4s ease';
+    });
+    btn.addEventListener('animationend', () => {
+      btn.style.animation = '';
+    });
+  });
+</script>
+
+</body>
+</html>

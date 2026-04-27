@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tarang+ Meme Battle: Challenge Accepted!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@400;600;700&family=Anton&display=swap" rel="stylesheet">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Fredoka', sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+    line-height: 1.6;
+    /* Static gradient — no animation on body, much cheaper */
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255, 195, 13, 0.25), transparent 40%),
+      radial-gradient(circle at 80% 30%, rgba(237, 27, 36, 0.30), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(12, 77, 161, 0.45), transparent 50%),
+      linear-gradient(135deg, #0C4DA1 0%, #2A66AF 25%, #ED1B24 70%, #FFC30D 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* ===== REAL 3D EMOJI =====
+     <span class="e3d" data-e="😂"></span>
+     JS swaps these for <img> with PNGs from Microsoft Fluent Emoji 3D.
+     The PNGs are pre-rendered 3D illustrations — they actually look 3D,
+     not flat SVGs. ===== */
+  .e3d {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: -0.25em;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* extra punch via shadow */
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.35));
+  }
+  .e3d.lg { width: 3rem; height: 3rem; }
+  .e3d.xl { width: 4rem; height: 4rem; }
+
+  /* ===== Floating background emoji layer ===== */
+  .emoji-rain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+    /* fully static — children handle their own movement */
+  }
+  .floater {
+    position: absolute;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-size: contain;
+    background-repeat: no-repeat;
+    will-change: transform;
+    animation: floatUp linear infinite;
+    opacity: 0.75;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+  }
+  @keyframes floatUp {
+    0%   { transform: translate3d(0, 110vh, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.8; }
+    100% { transform: translate3d(0, -15vh, 0) rotate(360deg); opacity: 0; }
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ===== Hero ===== */
+  .hero { text-align: center; padding: 3rem 1rem 2rem; position: relative; }
+  .badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 215, 2, 0.6);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+
+  h1.title {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: 2px;
+    text-shadow:
+      4px 4px 0 #ED1B24,
+      8px 8px 0 #0C4DA1,
+      12px 12px 30px rgba(0,0,0,0.4);
+    margin-bottom: 1rem;
+  }
+
+  .headline {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    color: #FFD602;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  }
+  .tagline { font-size: clamp(1.1rem, 2vw, 1.5rem); font-style: italic; margin-bottom: 1.5rem; }
+  .hero-desc { max-width: 650px; margin: 0 auto 2rem; font-size: 1.1rem; opacity: 0.95; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #FFD602, #FFC30D);
+    color: #0C4DA1;
+    padding: 1.1rem 2.5rem;
+    border-radius: 50px;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    text-transform: uppercase;
+    border: 3px solid #fff;
+    box-shadow: 0 10px 30px rgba(237, 27, 36, 0.5), inset 0 -4px 0 rgba(0,0,0,0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 15px 40px rgba(255, 215, 2, 0.7);
+  }
+  .btn:active { transform: translateY(0) scale(0.98); }
+  .btn-secondary { background: linear-gradient(135deg, #ED1B24, #b30810); color: #fff; }
+
+  /* ===== Sections ===== */
+  .section {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .section.visible { opacity: 1; transform: translateY(0); }
+  .section h2 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    margin-bottom: 1.5rem;
+    letter-spacing: 1.5px;
+    color: #FFD602;
+    text-shadow: 3px 3px 0 #ED1B24;
+  }
+
+  /* ===== Steps ===== */
+  #stepsSection { position: relative; min-height: 380px; }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+    list-style: none;
+  }
+  .steps li {
+    background: rgba(255,255,255,0.1);
+    border: 2px dashed rgba(255, 215, 2, 0.5);
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem;
+    transition: transform 0.4s ease, background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .steps li.highlight {
+    transform: translateY(-8px) scale(1.03);
+    background: rgba(255,215,2,0.2);
+    border-color: #FFD602;
+    border-style: solid;
+    box-shadow: 0 15px 40px rgba(255,215,2,0.4);
+  }
+  .steps li:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.18);
+    border-color: #FFD602;
+  }
+  .steps .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    background: #ED1B24;
+    color: #fff;
+    border-radius: 50%;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    border: 3px solid #FFD602;
+  }
+  .steps strong { display: block; font-size: 1.1rem; margin-bottom: 0.4rem; color: #FFD602; }
+
+  /* ===== Mascot ===== */
+  .mascot {
+    position: absolute;
+    width: 110px;
+    height: 130px;
+    pointer-events: none;
+    z-index: 50;
+    transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1),
+                top 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+    will-change: transform, left, top;
+  }
+  .mascot-bob {
+    width: 100%;
+    height: 100%;
+    animation: bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%      { transform: translateY(-10px) rotate(3deg); }
+  }
+  .speech {
+    position: absolute;
+    top: -10px;
+    left: 110%;
+    background: #fff;
+    color: #0C4DA1;
+    padding: 0.6rem 1rem;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateX(-10px) scale(0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .speech::before {
+    content: '';
+    position: absolute;
+    left: -10px; top: 18px;
+    width: 0; height: 0;
+    border-right: 12px solid #fff;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+  }
+  .mascot.show-speech .speech { opacity: 1; transform: translateX(0) scale(1); }
+  .mascot.flip .speech { left: auto; right: 110%; }
+  .mascot.flip .speech::before {
+    left: auto; right: -10px;
+    border-right: none;
+    border-left: 12px solid #fff;
+  }
+  .mascot.flip .robot-svg { transform: scaleX(-1); transform-origin: center; }
+
+  /* ===== Download / Rules / Prizes / Tips ===== */
+  .download-box {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(237,27,36,0.3), rgba(12,77,161,0.3));
+    border: 3px solid #FFD602;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    margin-top: 1rem;
+  }
+  .download-box p { margin-bottom: 1.25rem; font-size: 1.1rem; }
+
+  .rules { list-style: none; display: grid; gap: 0.9rem; }
+  .rules li {
+    background: rgba(0,0,0,0.2);
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #FFD602;
+    border-radius: 8px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .rules li:hover { transform: translateX(6px); border-left-color: #ED1B24; }
+  .rules li strong { color: #FFD602; }
+
+  .prizes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+  .prize-card {
+    background: linear-gradient(135deg, rgba(255,215,2,0.2), rgba(237,27,36,0.2));
+    border: 2px solid rgba(255, 215, 2, 0.4);
+    border-radius: 16px;
+    padding: 1.75rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+  .prize-card:hover { transform: scale(1.04); }
+  .prize-card h3 {
+    font-family: 'Anton', sans-serif;
+    color: #FFD602;
+    margin: 0.5rem 0;
+    letter-spacing: 1px;
+  }
+
+  .tips { list-style: none; display: grid; gap: 1rem; }
+  .tips li {
+    padding: 1rem 1.25rem;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    transition: background 0.2s ease;
+  }
+  .tips li:hover { background: rgba(255,215,2,0.15); }
+
+  .final-cta { text-align: center; margin: 3rem 0 1rem; }
+  .final-cta h2 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 1.5rem;
+    color: #FFD602;
+    text-shadow: 4px 4px 0 #ED1B24;
+  }
+
+  /* ===== Click burst ===== */
+  .burst {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    width: 2rem;
+    height: 2rem;
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: burstFly 0.8s ease-out forwards;
+    will-change: transform, opacity;
+  }
+  @keyframes burstFly {
+    0%   { transform: translate3d(0,0,0) scale(0.5); opacity: 1; }
+    100% { transform: translate3d(var(--tx), var(--ty), 0) scale(1.4); opacity: 0; }
+  }
+
+  @media (max-width: 700px) {
+    .container { padding: 1rem 1rem 3rem; }
+    .section { padding: 1.75rem 1.25rem; }
+    h1.title { text-shadow: 3px 3px 0 #ED1B24, 6px 6px 0 #0C4DA1; }
+    .btn { padding: 1rem 1.75rem; font-size: 1rem; }
+    .mascot { width: 80px; height: 95px; }
+    .speech { font-size: 0.75rem; padding: 0.5rem 0.75rem; white-space: normal; max-width: 160px; }
+    .floater { width: 2rem; height: 2rem; }
+  }
+
+  /* Honor reduced-motion preference for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="emoji-rain" id="emojiRain" aria-hidden="true"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="badge"><span class="e3d" data-e="🔥"></span> Odisha's Biggest Meme Showdown <span class="e3d" data-e="🔥"></span></span>
+    <h1 class="title">Tarang+ Meme Battle<br>Challenge Accepted! <span class="e3d" data-e="💥"></span></h1>
+    <p class="headline">Memes Don't Make Money? Prove Them Wrong.</p>
+    <p class="tagline">Create. Upload. Win ₹5,000. <span class="e3d" data-e="💰"></span></p>
+    <p class="hero-desc">Think you're the funniest creator in Odisha? Tarang+ is handing over the keys to our content library. We provide the clips, you provide the comedy. The best meme takes home the cash! <span class="e3d" data-e="🎤"></span><span class="e3d" data-e="🎬"></span></p>
+    <a href="#download" class="btn"><span class="e3d" data-e="🎬"></span> Grab the Clips</a>
+  </header>
+
+  <!-- HOW TO ENTER -->
+  <section class="section reveal" id="stepsSection">
+    <h2><span class="e3d" data-e="🎬"></span> How to Enter</h2>
+    <ol class="steps" id="stepsList">
+      <li data-tip='Step 1: Click below to grab the clips!'>
+        <span class="num">1</span>
+        <strong>Download the Assets <span class="e3d" data-e="📥"></span></strong>
+        Click the button to access exclusive clips from your favorite Tarang+ series.
+      </li>
+      <li data-tip='Step 2: Now make it FUNNY!'>
+        <span class="num">2</span>
+        <strong>Get Creative <span class="e3d" data-e="🎨"></span></strong>
+        Edit a video meme, a remix, or a classic static meme using at least one of our clips.
+      </li>
+      <li data-tip='Step 3: Post it on socials!'>
+        <span class="num">3</span>
+        <strong>Post & Tag <span class="e3d" data-e="📲"></span></strong>
+        Upload your masterpiece to Instagram or Facebook.
+      </li>
+      <li data-tip="Step 4: Don't forget the tags!">
+        <span class="num">4</span>
+        <strong>Mandatory Tags <span class="e3d" data-e="🏷️"></span></strong>
+        Use <em>#TarangPlusMemeBattle</em> and tag <em>@TarangPlus</em> so we can find your entry.
+      </li>
+    </ol>
+
+    <!-- Mascot -->
+    <div class="mascot" id="mascot" aria-hidden="true">
+      <div class="mascot-bob">
+        <svg class="robot-svg" viewBox="0 0 110 130" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFD602"/>
+              <stop offset="100%" stop-color="#FFC30D"/>
+            </linearGradient>
+            <linearGradient id="headGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ED1B24"/>
+              <stop offset="100%" stop-color="#b30810"/>
+            </linearGradient>
+            <radialGradient id="eyeGrad" cx="0.3" cy="0.3" r="0.7">
+              <stop offset="0%" stop-color="#fff"/>
+              <stop offset="80%" stop-color="#0C4DA1"/>
+            </radialGradient>
+          </defs>
+          <line x1="55" y1="15" x2="55" y2="5" stroke="#FFD602" stroke-width="2"/>
+          <circle cx="55" cy="5" r="5" fill="#FFD602">
+            <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
+          </circle>
+          <rect x="25" y="15" width="60" height="50" rx="14" fill="url(#headGrad)" stroke="#fff" stroke-width="2.5"/>
+          <rect x="32" y="25" width="46" height="30" rx="6" fill="#0C4DA1"/>
+          <circle cx="44" cy="40" r="5" fill="url(#eyeGrad)"/>
+          <circle cx="66" cy="40" r="5" fill="url(#eyeGrad)"/>
+          <path d="M 45 48 Q 55 54 65 48" stroke="#FFD602" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <rect x="48" y="63" width="14" height="6" fill="#888"/>
+          <rect x="20" y="68" width="70" height="50" rx="12" fill="url(#bodyGrad)" stroke="#fff" stroke-width="2.5"/>
+          <rect x="35" y="80" width="40" height="22" rx="4" fill="#0C4DA1" stroke="#fff" stroke-width="1.5"/>
+          <text x="55" y="96" text-anchor="middle" font-family="Anton, sans-serif" font-size="12" fill="#FFD602" font-weight="bold">T+</text>
+          <rect x="8" y="74" width="14" height="8" rx="4" fill="#888"/>
+          <circle cx="8" cy="78" r="6" fill="#fff" stroke="#ED1B24" stroke-width="2"/>
+          <rect x="88" y="74" width="18" height="8" rx="4" fill="#888"/>
+          <circle cx="106" cy="78" r="7" fill="#FFD602" stroke="#fff" stroke-width="2"/>
+          <rect x="106" y="76" width="10" height="4" rx="2" fill="#FFD602" stroke="#fff" stroke-width="1.5"/>
+          <ellipse cx="55" cy="125" rx="30" ry="4" fill="rgba(0,0,0,0.3)">
+            <animate attributeName="rx" values="30;22;30" dur="2.4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.3;0.15;0.3" dur="2.4s" repeatCount="indefinite"/>
+          </ellipse>
+        </svg>
+      </div>
+      <div class="speech" id="speech">Hi! I'm Tara-bot</div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD CENTER -->
+  <section class="section reveal" id="download">
+    <h2><span class="e3d" data-e="📥"></span> Download Center</h2>
+    <div class="download-box">
+      <p>Get high-quality, watermark-free clips from our hit series <span class="e3d" data-e="🎞️"></span></p>
+      <a href="https://drive.google.com/drive/folders/1q-IMlr1PHkJSwRo0hczSpzgUG8apb0hu" target="_blank" rel="noopener" class="btn btn-secondary"><span class="e3d" data-e="⬇️"></span> Download Meme Clips (ZIP) <span class="e3d" data-e="🎬"></span></a>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section class="section reveal">
+    <h2><span class="e3d" data-e="⚖️"></span> The Official Rules</h2>
+    <ul class="rules">
+      <li><strong>Originality is King <span class="e3d" data-e="👑"></span>:</strong> Fresh humor only. Stolen memes will be disqualified immediately.</li>
+      <li><strong>Respect the Craft <span class="e3d" data-e="🙏"></span>:</strong> No offensive, derogatory, or hateful content. Keep it funny, not harmful.</li>
+      <li><strong>Duration <span class="e3d" data-e="⏱️"></span>:</strong> Video memes should be between 15 to 60 seconds (perfect for Reels/Shorts).</li>
+      <li><strong>Usage Rights <span class="e3d" data-e="📜"></span>:</strong> By entering, you grant Tarang+ the right to reshare your meme on our official channels (with credit to you!).</li>
+      <li><strong>Deadline <span class="e3d" data-e="📅"></span>:</strong> All entries must be posted by <em>[Insert Date Here]</em>.</li>
+      <li><strong>Winner Selection <span class="e3d" data-e="🏅"></span>:</strong> Based on <em>Creativity (50%)</em> and <em>Audience Engagement/Likes (50%)</em>.</li>
+    </ul>
+  </section>
+
+  <!-- PRIZES -->
+  <section class="section reveal">
+    <h2><span class="e3d" data-e="🏆"></span> The Prize</h2>
+    <div class="prizes">
+      <div class="prize-card">
+        <span class="e3d xl" data-e="💰"></span>
+        <h3>Grand Prize</h3>
+        <p>₹5,000 Cash + Featured spot on Tarang+ Social Media handles.</p>
+      </div>
+      <div class="prize-card">
+        <span class="e3d xl" data-e="🎁"></span>
+        <h3>Runners Up</h3>
+        <p>Exclusive Tarang+ Merchandise and Premium Subscriptions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRO TIPS -->
+  <section class="section reveal">
+    <h2><span class="e3d" data-e="💡"></span> Pro-Tips for Creators</h2>
+    <ul class="tips">
+      <li><span class="e3d lg" data-e="😂"></span><div><strong>Relatability:</strong> The best memes make people say "That's so me!"</div></li>
+      <li><span class="e3d lg" data-e="🎵"></span><div><strong>Audio Matters:</strong> Use trending Odia audio or clear voiceovers to make your edit stand out.</div></li>
+      <li><span class="e3d lg" data-e="💬"></span><div><strong>Engage:</strong> Reply to comments — the more engagement, the higher your chances of winning!</div></li>
+    </ul>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta reveal">
+    <h2>Ready to Become the Next Meme Lord? <span class="e3d" data-e="👑"></span></h2>
+    <a href="https://drive.google.com/drive/folders/1q-IMlr1PHkJSwRo0hczSpzgUG8apb0hu" target="_blank" rel="noopener" class="btn"><span class="e3d" data-e="🎬"></span> Grab the Clips & Start Editing <span class="e3d" data-e="🚀"></span></a>
+  </section>
+
+</div>
+
+<script>
+  /* =========================================================================
+     3D EMOJI MAP — uses Microsoft Fluent Emoji 3D (real 3D-rendered PNGs).
+     CDN: jsdelivr serves the assets folder of microsoft/fluentui-emoji on GitHub.
+     We map each emoji char to its asset path. Falls back to the emoji char
+     if image fails to load.
+  ========================================================================= */
+  const EMOJI_MAP = {
+    '🔥':  'Fire/3D/fire_3d.png',
+    '💥':  'Collision/3D/collision_3d.png',
+    '💰':  'Money bag/3D/money_bag_3d.png',
+    '🎤':  'Microphone/3D/microphone_3d.png',
+    '🎬':  'Clapper board/3D/clapper_board_3d.png',
+    '📥':  'Inbox tray/3D/inbox_tray_3d.png',
+    '🎨':  'Artist palette/3D/artist_palette_3d.png',
+    '📲':  'Mobile phone with arrow/3D/mobile_phone_with_arrow_3d.png',
+    '🏷️':  'Label/3D/label_3d.png',
+    '🎞️':  'Film frames/3D/film_frames_3d.png',
+    '⬇️':  'Down arrow/3D/down_arrow_3d.png',
+    '⚖️':  'Balance scale/3D/balance_scale_3d.png',
+    '👑':  'Crown/3D/crown_3d.png',
+    '🙏':  'Folded hands/3D/default/folded_hands_3d_default.png',
+    '⏱️':  'Stopwatch/3D/stopwatch_3d.png',
+    '📜':  'Scroll/3D/scroll_3d.png',
+    '📅':  'Calendar/3D/calendar_3d.png',
+    '🏅':  'Sports medal/3D/sports_medal_3d.png',
+    '🏆':  'Trophy/3D/trophy_3d.png',
+    '🎁':  'Wrapped gift/3D/wrapped_gift_3d.png',
+    '💡':  'Light bulb/3D/light_bulb_3d.png',
+    '😂':  'Face with tears of joy/3D/face_with_tears_of_joy_3d.png',
+    '🎵':  'Musical note/3D/musical_note_3d.png',
+    '💬':  'Speech balloon/3D/speech_balloon_3d.png',
+    '🚀':  'Rocket/3D/rocket_3d.png',
+    '🤣':  'Rolling on the floor laughing/3D/rolling_on_the_floor_laughing_3d.png',
+    '💀':  'Skull/3D/skull_3d.png',
+    '😎':  'Smiling face with sunglasses/3D/smiling_face_with_sunglasses_3d.png',
+    '🤪':  'Zany face/3D/zany_face_3d.png',
+    '🎉':  'Party popper/3D/party_popper_3d.png',
+    '📸':  'Camera with flash/3D/camera_with_flash_3d.png',
+    '🎭':  'Performing arts/3D/performing_arts_3d.png',
+    '✨':  'Sparkles/3D/sparkles_3d.png'
+  };
+  const EMOJI_BASE = 'https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/';
+
+  function emojiUrl(char) {
+    const path = EMOJI_MAP[char];
+    if (!path) return null;
+    return EMOJI_BASE + encodeURI(path);
+  }
+
+  /* Apply 3D images to all .e3d spans (one-time, no re-parsing on every interaction) */
+  function applyAll3DEmojis() {
+    document.querySelectorAll('.e3d[data-e]').forEach(el => {
+      const ch = el.dataset.e;
+      const url = emojiUrl(ch);
+      if (url) {
+        el.style.backgroundImage = `url("${url}")`;
+      } else {
+        // fallback to plain emoji if not in map
+        el.textContent = ch;
+        el.style.fontSize = '1.2em';
+      }
+    });
+  }
+  applyAll3DEmojis();
+
+  /* =========================================================================
+     Floating background — only 8 emojis (was 22), CSS-only animation, GPU.
+     No heavy DOM mutation, no Twemoji parsing.
+  ========================================================================= */
+  const RAIN_EMOJIS = ['😂','🤣','💰','🎬','🔥','🎉','💥','✨'];
+  const rain = document.getElementById('emojiRain');
+  for (let i = 0; i < 8; i++) {
+    const div = document.createElement('div');
+    div.className = 'floater';
+    const ch = RAIN_EMOJIS[i % RAIN_EMOJIS.length];
+    const url = emojiUrl(ch);
+    if (url) div.style.backgroundImage = `url("${url}")`;
+    div.style.left = (Math.random() * 95) + 'vw';
+    div.style.animationDuration = (14 + Math.random() * 14) + 's';
+    div.style.animationDelay = (Math.random() * 14) + 's';
+    rain.appendChild(div);
+  }
+
+  /* =========================================================================
+     Scroll reveal — IntersectionObserver, unobserve after first reveal
+  ========================================================================= */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* =========================================================================
+     Click burst — THROTTLED + reduced count.
+     Only fires once per 600ms, max 5 emojis per burst, auto-removed.
+  ========================================================================= */
+  const BURST_EMOJIS = ['😂','💥','🔥','💰','🎉'];
+  let lastBurst = 0;
+  document.addEventListener('click', (e) => {
+    const now = Date.now();
+    if (now - lastBurst < 600) return;
+    lastBurst = now;
+
+    const count = 5;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'burst';
+      const ch = BURST_EMOJIS[Math.floor(Math.random() * BURST_EMOJIS.length)];
+      const url = emojiUrl(ch);
+      if (url) el.style.backgroundImage = `url("${url}")`;
+      el.style.left = (e.clientX - 16) + 'px';
+      el.style.top  = (e.clientY - 16) + 'px';
+      const angle = (Math.PI * 2 * i) / count;
+      const dist = 70 + Math.random() * 40;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 800);
+    }
+  }, { passive: true });
+
+  /* =========================================================================
+     MASCOT — floats step to step, points & talks
+  ========================================================================= */
+  const mascot     = document.getElementById('mascot');
+  const speech     = document.getElementById('speech');
+  const stepsList  = document.getElementById('stepsList');
+  const stepItems  = stepsList.querySelectorAll('li');
+  const section    = document.getElementById('stepsSection');
+
+  let currentStep = 0;
+  let mascotTimer = null;
+
+  function moveMascotToStep(idx) {
+    const step     = stepItems[idx];
+    const sRect    = section.getBoundingClientRect();
+    const stepRect = step.getBoundingClientRect();
+
+    const stepCenterY = stepRect.top - sRect.top + stepRect.height / 2 - 65;
+    const onRight = idx % 2 === 0;
+    let left;
+    if (onRight) {
+      left = stepRect.right - sRect.left + 10;
+      mascot.classList.add('flip');
+    } else {
+      left = stepRect.left - sRect.left - 120;
+      mascot.classList.remove('flip');
+    }
+    const maxLeft = section.clientWidth - 120;
+    if (left < 5) left = 5;
+    if (left > maxLeft) left = maxLeft;
+
+    mascot.style.top  = stepCenterY + 'px';
+    mascot.style.left = left + 'px';
+
+    speech.textContent = step.dataset.tip || '';
+    mascot.classList.add('show-speech');
+
+    stepItems.forEach(li => li.classList.remove('highlight'));
+    step.classList.add('highlight');
+  }
+
+  /* Only animate mascot when steps section is in viewport — saves CPU */
+  let mascotActive = false;
+  const mascotObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !mascotActive) {
+        mascotActive = true;
+        moveMascotToStep(currentStep);
+        mascotTimer = setInterval(() => {
+          currentStep = (currentStep + 1) % stepItems.length;
+          moveMascotToStep(currentStep);
+        }, 3500);
+      } else if (!entry.isIntersecting && mascotActive) {
+        mascotActive = false;
+        clearInterval(mascotTimer);
+      }
+    });
+  }, { threshold: 0.2 });
+  mascotObserver.observe(section);
+
+  /* Debounced resize */
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (mascotActive) moveMascotToStep(currentStep);
+    }, 150);
+  });
+</script>
+
+</body>
+</html>

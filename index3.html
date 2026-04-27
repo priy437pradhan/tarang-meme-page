@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tarang+ Meme Battle: Challenge Accepted!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@400;600;700&family=Anton&display=swap" rel="stylesheet">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Fredoka', sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+    line-height: 1.6;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255, 195, 13, 0.25), transparent 40%),
+      radial-gradient(circle at 80% 30%, rgba(237, 27, 36, 0.30), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(12, 77, 161, 0.45), transparent 50%),
+      linear-gradient(135deg, #0C4DA1 0%, #2A66AF 25%, #ED1B24 70%, #FFC30D 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* ===== 3D Emojis (Fluent Emoji background-image) ===== */
+  .e3d {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: -0.25em;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.35));
+  }
+  .e3d.lg { width: 3rem; height: 3rem; }
+  .e3d.xl { width: 4rem; height: 4rem; }
+
+  /* ===== Floating background emojis ===== */
+  .emoji-rain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .floater {
+    position: absolute;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-size: contain;
+    background-repeat: no-repeat;
+    will-change: transform;
+    animation: floatUp linear infinite;
+    opacity: 0.75;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+  }
+  @keyframes floatUp {
+    0%   { transform: translate3d(0, 110vh, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.8; }
+    100% { transform: translate3d(0, -15vh, 0) rotate(360deg); opacity: 0; }
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ===== Hero ===== */
+  .hero { text-align: center; padding: 3rem 1rem 2rem; position: relative; }
+  .badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 215, 2, 0.6);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+  h1.title {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: 2px;
+    text-shadow: 4px 4px 0 #ED1B24, 8px 8px 0 #0C4DA1, 12px 12px 30px rgba(0,0,0,0.4);
+    margin-bottom: 1rem;
+  }
+  .headline {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    color: #FFD602;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  }
+  .tagline { font-size: clamp(1.1rem, 2vw, 1.5rem); font-style: italic; margin-bottom: 1.5rem; }
+  .hero-desc { max-width: 650px; margin: 0 auto 2rem; font-size: 1.1rem; opacity: 0.95; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #FFD602, #FFC30D);
+    color: #0C4DA1;
+    padding: 1.1rem 2.5rem;
+    border-radius: 50px;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    text-transform: uppercase;
+    border: 3px solid #fff;
+    box-shadow: 0 10px 30px rgba(237, 27, 36, 0.5), inset 0 -4px 0 rgba(0,0,0,0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 15px 40px rgba(255, 215, 2, 0.7); }
+  .btn:active { transform: translateY(0) scale(0.98); }
+  .btn-secondary { background: linear-gradient(135deg, #ED1B24, #b30810); color: #fff; }
+
+  /* ===== Sections ===== */
+  .section {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .section.visible { opacity: 1; transform: translateY(0); }
+  .section h2 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    margin-bottom: 1.5rem;
+    letter-spacing: 1.5px;
+    color: #FFD602;
+    text-shadow: 3px 3px 0 #ED1B24;
+  }
+
+  /* ===== Steps + Mascot ===== */
+  #stepsSection { position: relative; min-height: 380px; }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+    list-style: none;
+  }
+  .steps li {
+    background: rgba(255,255,255,0.1);
+    border: 2px dashed rgba(255, 215, 2, 0.5);
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem;
+    transition: transform 0.4s ease, background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .steps li.highlight {
+    transform: translateY(-8px) scale(1.03);
+    background: rgba(255,215,2,0.2);
+    border-color: #FFD602;
+    border-style: solid;
+    box-shadow: 0 15px 40px rgba(255,215,2,0.4);
+  }
+  .steps li:hover { transform: translateY(-4px); background: rgba(255,255,255,0.18); border-color: #FFD602; }
+  .steps .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    background: #ED1B24;
+    color: #fff;
+    border-radius: 50%;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    border: 3px solid #FFD602;
+  }
+  .steps strong { display: block; font-size: 1.1rem; margin-bottom: 0.4rem; color: #FFD602; }
+
+  .mascot {
+    position: absolute;
+    width: 110px;
+    height: 130px;
+    pointer-events: none;
+    z-index: 50;
+    transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1), top 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+    will-change: transform, left, top;
+  }
+  .mascot-bob { width: 100%; height: 100%; animation: bob 2.4s ease-in-out infinite; }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%      { transform: translateY(-10px) rotate(3deg); }
+  }
+  .speech {
+    position: absolute;
+    top: -10px;
+    left: 110%;
+    background: #fff;
+    color: #0C4DA1;
+    padding: 0.6rem 1rem;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateX(-10px) scale(0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .speech::before {
+    content: '';
+    position: absolute;
+    left: -10px; top: 18px;
+    width: 0; height: 0;
+    border-right: 12px solid #fff;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+  }
+  .mascot.show-speech .speech { opacity: 1; transform: translateX(0) scale(1); }
+  .mascot.flip .speech { left: auto; right: 110%; }
+  .mascot.flip .speech::before {
+    left: auto; right: -10px;
+    border-right: none;
+    border-left: 12px solid #fff;
+  }
+  .mascot.flip .robot-svg { transform: scaleX(-1); transform-origin: center; }
+
+  /* ===== Other sections ===== */
+  .download-box {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(237,27,36,0.3), rgba(12,77,161,0.3));
+    border: 3px solid #FFD602;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    margin-top: 1rem;
+  }
+  .download-box p { margin-bottom: 1.25rem; font-size: 1.1rem; }
+  .rules { list-style: none; display: grid; gap: 0.9rem; }
+  .rules li {
+    background: rgba(0,0,0,0.2);
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #FFD602;
+    border-radius: 8px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .rules li:hover { transform: translateX(6px); border-left-color: #ED1B24; }
+  .rules li strong { color: #FFD602; }
+  .prizes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+  .prize-card {
+    background: linear-gradient(135deg, rgba(255,215,2,0.2), rgba(237,27,36,0.2));
+    border: 2px solid rgba(255, 215, 2, 0.4);
+    border-radius: 16px;
+    padding: 1.75rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+  .prize-card:hover { transform: scale(1.04); }
+  .prize-card h3 { font-family: 'Anton', sans-serif; color: #FFD602; margin: 0.5rem 0; letter-spacing: 1px; }
+  .tips { list-style: none; display: grid; gap: 1rem; }
+  .tips li {
+    padding: 1rem 1.25rem;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    transition: background 0.2s ease;
+  }
+  .tips li:hover { background: rgba(255,215,2,0.15); }
+  .final-cta { text-align: center; margin: 3rem 0 1rem; }
+  .final-cta h2 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 1.5rem;
+    color: #FFD602;
+    text-shadow: 4px 4px 0 #ED1B24;
+  }
+
+  .burst {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    width: 2rem;
+    height: 2rem;
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: burstFly 0.8s ease-out forwards;
+    will-change: transform, opacity;
+  }
+  @keyframes burstFly {
+    0%   { transform: translate3d(0,0,0) scale(0.5); opacity: 1; }
+    100% { transform: translate3d(var(--tx), var(--ty), 0) scale(1.4); opacity: 0; }
+  }
+
+  /* ===== CHATBOT ===== */
+  .chat-toggle {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ED1B24, #b30810);
+    border: 3px solid #FFD602;
+    box-shadow: 0 10px 30px rgba(237,27,36,0.6);
+    z-index: 100;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    animation: chatPulse 2.5s ease-in-out infinite;
+  }
+  .chat-toggle:hover { transform: scale(1.1) rotate(-8deg); }
+  .chat-toggle .e3d { width: 36px; height: 36px; }
+  @keyframes chatPulse {
+    0%, 100% { box-shadow: 0 10px 30px rgba(237,27,36,0.6), 0 0 0 0 rgba(255,215,2,0.7); }
+    50%      { box-shadow: 0 10px 30px rgba(237,27,36,0.6), 0 0 0 14px rgba(255,215,2,0); }
+  }
+  .chat-toggle .badge-dot {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #FFD602;
+    color: #0C4DA1;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+  }
+
+  .chat-window {
+    position: fixed;
+    bottom: 6rem;
+    right: 1.25rem;
+    width: 360px;
+    max-width: calc(100vw - 2rem);
+    height: 520px;
+    max-height: calc(100vh - 8rem);
+    background: linear-gradient(180deg, #0C4DA1 0%, #2A66AF 100%);
+    border: 2px solid #FFD602;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    z-index: 101;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(20px) scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  }
+  .chat-window.open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .chat-header {
+    background: linear-gradient(135deg, #ED1B24, #b30810);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-bottom: 2px solid #FFD602;
+  }
+  .chat-header .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #FFD602;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+  }
+  .chat-header .avatar .e3d { width: 24px; height: 24px; }
+  .chat-header .info h3 {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.1rem;
+    color: #fff;
+    letter-spacing: 1px;
+    line-height: 1.1;
+  }
+  .chat-header .info small { color: #FFD602; font-size: 0.75rem; }
+  .chat-header .info small::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    margin-right: 5px;
+    box-shadow: 0 0 6px #4ade80;
+  }
+  .chat-close {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+  }
+  .chat-close:hover { background: rgba(255,255,255,0.35); }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    scroll-behavior: smooth;
+  }
+  .chat-messages::-webkit-scrollbar { width: 6px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,215,2,0.5); border-radius: 3px; }
+
+  .msg {
+    max-width: 85%;
+    padding: 0.7rem 0.95rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    word-wrap: break-word;
+    animation: msgIn 0.3s ease-out;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .msg.bot {
+    background: rgba(255,255,255,0.95);
+    color: #0C4DA1;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user {
+    background: linear-gradient(135deg, #FFD602, #FFC30D);
+    color: #0C4DA1;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    font-weight: 600;
+  }
+  .msg.bot strong { color: #ED1B24; }
+  .msg.bot a { color: #ED1B24; font-weight: 600; }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+  }
+  .chip {
+    background: rgba(255,215,2,0.85);
+    color: #0C4DA1;
+    border: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .chip:hover { transform: scale(1.05); background: #FFD602; }
+
+  .typing {
+    display: inline-flex;
+    gap: 4px;
+    padding: 0.7rem 0.95rem;
+    background: rgba(255,255,255,0.95);
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+  }
+  .typing span {
+    width: 7px; height: 7px;
+    background: #0C4DA1;
+    border-radius: 50%;
+    animation: typingDot 1.2s infinite ease-in-out;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingDot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30%           { transform: translateY(-5px); opacity: 1; }
+  }
+
+  .chat-input {
+    padding: 0.75rem;
+    background: rgba(0,0,0,0.25);
+    border-top: 1px solid rgba(255,215,2,0.3);
+    display: flex;
+    gap: 0.5rem;
+  }
+  .chat-input input {
+    flex: 1;
+    background: rgba(255,255,255,0.95);
+    border: none;
+    border-radius: 24px;
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    color: #0C4DA1;
+    font-family: inherit;
+    outline: none;
+  }
+  .chat-input input::placeholder { color: #6b7a99; }
+  .chat-input button {
+    background: linear-gradient(135deg, #FFD602, #FFC30D);
+    color: #0C4DA1;
+    border: none;
+    border-radius: 50%;
+    width: 42px; height: 42px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chat-input button:hover { transform: scale(1.1) rotate(-10deg); }
+  .chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  @media (max-width: 700px) {
+    .container { padding: 1rem 1rem 3rem; }
+    .section { padding: 1.75rem 1.25rem; }
+    h1.title { text-shadow: 3px 3px 0 #ED1B24, 6px 6px 0 #0C4DA1; }
+    .btn { padding: 1rem 1.75rem; font-size: 1rem; }
+    .mascot { width: 80px; height: 95px; }
+    .speech { font-size: 0.75rem; padding: 0.5rem 0.75rem; white-space: normal; max-width: 160px; }
+    .floater { width: 2rem; height: 2rem; }
+    .chat-window { right: 0.75rem; bottom: 5.5rem; height: 70vh; }
+    .chat-toggle { width: 56px; height: 56px; bottom: 1rem; right: 1rem; }
+    .chat-toggle .e3d { width: 30px; height: 30px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="emoji-rain" id="emojiRain" aria-hidden="true"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="badge"><span class="e3d" data-e="🔥"></span> Odisha's Biggest Meme Showdown <span class="e3d" data-e="🔥"></span></span>
+    <h1 class="title">Tarang+ Meme Battle<br>Challenge Accepted! <span class="e3d" data-e="💥"></span></h1>
+    <p class="headline">Memes Don't Make Money? Prove Them Wrong.</p>
+    <p class="tagline">Create. Upload. Win ₹5,000. <span class="e3d" data-e="💰"></span></p>
+    <p class="hero-desc">Think you're the funniest creator in Odisha? Tarang+ is handing over the keys to our content library. We provide the clips, you provide the comedy. The best meme takes home the cash! <span class="e3d" data-e="🎤"></span><span class="e3d" data-e="🎬"></span></p>
+    <a href="#download" class="btn"><span class="e3d" data-e="🎬"></span> Grab the Clips</a>
+  </header>
+
+  <!-- HOW TO ENTER -->
+  <section class="section reveal" id="stepsSection">
+    <h2><span class="e3d" data-e="🎬"></span> How to Enter</h2>
+    <ol class="steps" id="stepsList">
+      <li data-tip='Step 1: Click below to grab the clips!'>
+        <span class="num">1</span>
+        <strong>Download the Assets <span class="e3d" data-e="📥"></span></strong>
+        Click the button to access exclusive clips from your favorite Tarang+ series.
+      </li>
+      <li data-tip='Step 2: Now make it FUNNY!'>
+        <span class="num">2</span>
+        <strong>Get Creative <span class="e3d" data-e="🎨"></span></strong>
+        Edit a video meme, a remix, or a classic static meme using at least one of our clips.
+      </li>
+      <li data-tip='Step 3: Post it on socials!'>
+        <span class="num">3</span>
+        <strong>Post & Tag <span class="e3d" data-e="📲"></span></strong>
+        Upload your masterpiece to Instagram or Facebook.
+      </li>
+      <li data-tip="Step 4: Don't forget the tags!">
+        <span class="num">4</span>
+        <strong>Mandatory Tags <span class="e3d" data-e="🏷️"></span></strong>
+        Use <em>#TarangPlusMemeBattle</em> and tag <em>@TarangPlus</em> so we can find your entry.
+      </li>
+    </ol>
+
+    <div class="mascot" id="mascot" aria-hidden="true">
+      <div class="mascot-bob">
+        <svg class="robot-svg" viewBox="0 0 110 130" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFD602"/>
+              <stop offset="100%" stop-color="#FFC30D"/>
+            </linearGradient>
+            <linearGradient id="headGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ED1B24"/>
+              <stop offset="100%" stop-color="#b30810"/>
+            </linearGradient>
+            <radialGradient id="eyeGrad" cx="0.3" cy="0.3" r="0.7">
+              <stop offset="0%" stop-color="#fff"/>
+              <stop offset="80%" stop-color="#0C4DA1"/>
+            </radialGradient>
+          </defs>
+          <line x1="55" y1="15" x2="55" y2="5" stroke="#FFD602" stroke-width="2"/>
+          <circle cx="55" cy="5" r="5" fill="#FFD602">
+            <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
+          </circle>
+          <rect x="25" y="15" width="60" height="50" rx="14" fill="url(#headGrad)" stroke="#fff" stroke-width="2.5"/>
+          <rect x="32" y="25" width="46" height="30" rx="6" fill="#0C4DA1"/>
+          <circle cx="44" cy="40" r="5" fill="url(#eyeGrad)"/>
+          <circle cx="66" cy="40" r="5" fill="url(#eyeGrad)"/>
+          <path d="M 45 48 Q 55 54 65 48" stroke="#FFD602" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <rect x="48" y="63" width="14" height="6" fill="#888"/>
+          <rect x="20" y="68" width="70" height="50" rx="12" fill="url(#bodyGrad)" stroke="#fff" stroke-width="2.5"/>
+          <rect x="35" y="80" width="40" height="22" rx="4" fill="#0C4DA1" stroke="#fff" stroke-width="1.5"/>
+          <text x="55" y="96" text-anchor="middle" font-family="Anton, sans-serif" font-size="12" fill="#FFD602" font-weight="bold">T+</text>
+          <rect x="8" y="74" width="14" height="8" rx="4" fill="#888"/>
+          <circle cx="8" cy="78" r="6" fill="#fff" stroke="#ED1B24" stroke-width="2"/>
+          <rect x="88" y="74" width="18" height="8" rx="4" fill="#888"/>
+          <circle cx="106" cy="78" r="7" fill="#FFD602" stroke="#fff" stroke-width="2"/>
+          <rect x="106" y="76" width="10" height="4" rx="2" fill="#FFD602" stroke="#fff" stroke-width="1.5"/>
+          <ellipse cx="55" cy="125" rx="30" ry="4" fill="rgba(0,0,0,0.3)">
+            <animate attributeName="rx" values="30;22;30" dur="2.4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.3;0.15;0.3" dur="2.4s" repeatCount="indefinite"/>
+          </ellipse>
+        </svg>
+      </div>
+      <div class="speech" id="speech">Hi! I'm Tara-bot</div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD CENTER -->
+  <section class="section reveal" id="download">
+    <h2><span class="e3d" data-e="📥"></span> Download Center</h2>
+    <div class="download-box">
+      <p>Get high-quality, watermark-free clips from our hit series <span class="e3d" data-e="🎞️"></span></p>
+      <a href="https://drive.google.com/drive/folders/1q-IMlr1PHkJSwRo0hczSpzgUG8apb0hu" target="_blank" rel="noopener" class="btn btn-secondary"><span class="e3d" data-e="⬇️"></span> Download Meme Clips (ZIP) <span class="e3d" data-e="🎬"></span></a>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section class="section reveal">
+    <h2><span class="e3d" data-e="⚖️"></span> The Official Rules</h2>
+    <ul class="rules">
+      <li><strong>Originality is King <span class="e3d" data-e="👑"></span>:</strong> Fresh humor only. Stolen memes will be disqualified immediately.</li>
+      <li><strong>Respect the Craft <span class="e3d" data-e="🙏"></span>:</strong> No offensive, derogatory, or hateful content. Keep it funny, not harmful.</li>
+      <li><strong>Duration <span class="e3d" data-e="⏱️"></span>:</strong> Video memes should be between 15 to 60 seconds (perfect for Reels/Shorts).</li>
+      <li><strong>Usage Rights <span class="e3d" data-e="📜"></span>:</strong> By entering, you grant Tarang+ the right to reshare your meme on our official channels (with credit to you!).</li>
+      <li><strong>Deadline <span class="e3d" data-e="📅"></span>:</strong> All entries must be posted by <em>[Insert Date Here]</em>.</li>
+      <li><strong>Winner Selection <span class="e3d" data-e="🏅"></span>:</strong> Based on <em>Creativity (50%)</em> and <em>Audience Engagement/Likes (50%)</em>.</li>
+    </ul>
+  </section>
+
+  <!-- PRIZES -->
+  <section class="section reveal">
+    <h2><span class="e3d" data-e="🏆"></span> The Prize</h2>
+    <div class="prizes">
+      <div class="prize-card">
+        <span class="e3d xl" data-e="💰"></span>
+        <h3>Grand Prize</h3>
+        <p>₹5,000 Cash + Featured spot on Tarang+ Social Media handles.</p>
+      </div>
+      <div class="prize-card">
+        <span class="e3d xl" data-e="🎁"></span>
+        <h3>Runners Up</h3>
+        <p>Exclusive Tarang+ Merchandise and Premium Subscriptions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRO TIPS -->
+  <section class="section reveal">
+    <h2><span class="e3d" data-e="💡"></span> Pro-Tips for Creators</h2>
+    <ul class="tips">
+      <li><span class="e3d lg" data-e="😂"></span><div><strong>Relatability:</strong> The best memes make people say "That's so me!"</div></li>
+      <li><span class="e3d lg" data-e="🎵"></span><div><strong>Audio Matters:</strong> Use trending Odia audio or clear voiceovers to make your edit stand out.</div></li>
+      <li><span class="e3d lg" data-e="💬"></span><div><strong>Engage:</strong> Reply to comments — the more engagement, the higher your chances of winning!</div></li>
+    </ul>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta reveal">
+    <h2>Ready to Become the Next Meme Lord? <span class="e3d" data-e="👑"></span></h2>
+    <a href="https://drive.google.com/drive/folders/1q-IMlr1PHkJSwRo0hczSpzgUG8apb0hu" target="_blank" rel="noopener" class="btn"><span class="e3d" data-e="🎬"></span> Grab the Clips & Start Editing <span class="e3d" data-e="🚀"></span></a>
+  </section>
+
+</div>
+
+<!-- ============== CHATBOT ============== -->
+<button class="chat-toggle" id="chatToggle" aria-label="Open chat">
+  <span class="e3d" data-e="💬"></span>
+  <span class="badge-dot">1</span>
+</button>
+
+<div class="chat-window" id="chatWindow" role="dialog" aria-label="Tara-bot chat">
+  <div class="chat-header">
+    <div class="avatar"><span class="e3d" data-e="🤖"></span></div>
+    <div class="info">
+      <h3>Tara-bot</h3>
+      <small>Online · Asks me anything</small>
+    </div>
+    <button class="chat-close" id="chatClose" aria-label="Close chat">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input">
+    <input type="text" id="chatInput" placeholder="Ask me anything about the contest..." autocomplete="off" />
+    <button id="chatSend" aria-label="Send">➤</button>
+  </div>
+</div>
+
+<script>
+  /* =========================================================================
+     3D EMOJI MAP (Microsoft Fluent Emoji)
+  ========================================================================= */
+  const EMOJI_MAP = {
+    '🔥':'Fire/3D/fire_3d.png','💥':'Collision/3D/collision_3d.png',
+    '💰':'Money bag/3D/money_bag_3d.png','🎤':'Microphone/3D/microphone_3d.png',
+    '🎬':'Clapper board/3D/clapper_board_3d.png','📥':'Inbox tray/3D/inbox_tray_3d.png',
+    '🎨':'Artist palette/3D/artist_palette_3d.png','📲':'Mobile phone with arrow/3D/mobile_phone_with_arrow_3d.png',
+    '🏷️':'Label/3D/label_3d.png','🎞️':'Film frames/3D/film_frames_3d.png',
+    '⬇️':'Down arrow/3D/down_arrow_3d.png','⚖️':'Balance scale/3D/balance_scale_3d.png',
+    '👑':'Crown/3D/crown_3d.png','🙏':'Folded hands/3D/default/folded_hands_3d_default.png',
+    '⏱️':'Stopwatch/3D/stopwatch_3d.png','📜':'Scroll/3D/scroll_3d.png',
+    '📅':'Calendar/3D/calendar_3d.png','🏅':'Sports medal/3D/sports_medal_3d.png',
+    '🏆':'Trophy/3D/trophy_3d.png','🎁':'Wrapped gift/3D/wrapped_gift_3d.png',
+    '💡':'Light bulb/3D/light_bulb_3d.png','😂':'Face with tears of joy/3D/face_with_tears_of_joy_3d.png',
+    '🎵':'Musical note/3D/musical_note_3d.png','💬':'Speech balloon/3D/speech_balloon_3d.png',
+    '🚀':'Rocket/3D/rocket_3d.png','🤣':'Rolling on the floor laughing/3D/rolling_on_the_floor_laughing_3d.png',
+    '🎉':'Party popper/3D/party_popper_3d.png','✨':'Sparkles/3D/sparkles_3d.png',
+    '🤖':'Robot/3D/robot_3d.png'
+  };
+  const EMOJI_BASE = 'https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/';
+  function emojiUrl(c) { const p = EMOJI_MAP[c]; return p ? EMOJI_BASE + encodeURI(p) : null; }
+  function applyAll3DEmojis(root) {
+    (root || document).querySelectorAll('.e3d[data-e]').forEach(el => {
+      if (el.dataset.applied) return;
+      const url = emojiUrl(el.dataset.e);
+      if (url) { el.style.backgroundImage = `url("${url}")`; el.dataset.applied = '1'; }
+      else     { el.textContent = el.dataset.e; el.style.fontSize = '1.2em'; el.dataset.applied = '1'; }
+    });
+  }
+  applyAll3DEmojis();
+
+  /* =========================================================================
+     Floating background
+  ========================================================================= */
+  const RAIN_EMOJIS = ['😂','🤣','💰','🎬','🔥','🎉','💥','✨'];
+  const rain = document.getElementById('emojiRain');
+  for (let i = 0; i < 8; i++) {
+    const div = document.createElement('div');
+    div.className = 'floater';
+    const url = emojiUrl(RAIN_EMOJIS[i % RAIN_EMOJIS.length]);
+    if (url) div.style.backgroundImage = `url("${url}")`;
+    div.style.left = (Math.random() * 95) + 'vw';
+    div.style.animationDuration = (14 + Math.random() * 14) + 's';
+    div.style.animationDelay = (Math.random() * 14) + 's';
+    rain.appendChild(div);
+  }
+
+  /* Scroll reveal */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }});
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* Click burst */
+  const BURST_EMOJIS = ['😂','💥','🔥','💰','🎉'];
+  let lastBurst = 0;
+  document.addEventListener('click', (e) => {
+    // skip bursts when clicking inside the chat window so it doesn't get spammy
+    if (e.target.closest('#chatWindow') || e.target.closest('#chatToggle')) return;
+    const now = Date.now();
+    if (now - lastBurst < 600) return;
+    lastBurst = now;
+    for (let i = 0; i < 5; i++) {
+      const el = document.createElement('div');
+      el.className = 'burst';
+      const url = emojiUrl(BURST_EMOJIS[Math.floor(Math.random() * BURST_EMOJIS.length)]);
+      if (url) el.style.backgroundImage = `url("${url}")`;
+      el.style.left = (e.clientX - 16) + 'px';
+      el.style.top  = (e.clientY - 16) + 'px';
+      const angle = (Math.PI * 2 * i) / 5;
+      const dist = 70 + Math.random() * 40;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 800);
+    }
+  }, { passive: true });
+
+  /* Mascot */
+  const mascot = document.getElementById('mascot');
+  const speech = document.getElementById('speech');
+  const stepsList = document.getElementById('stepsList');
+  const stepItems = stepsList.querySelectorAll('li');
+  const stepsSection = document.getElementById('stepsSection');
+  let currentStep = 0, mascotTimer = null, mascotActive = false;
+  function moveMascotToStep(idx) {
+    const step = stepItems[idx];
+    const sRect = stepsSection.getBoundingClientRect();
+    const stepRect = step.getBoundingClientRect();
+    const stepCenterY = stepRect.top - sRect.top + stepRect.height / 2 - 65;
+    const onRight = idx % 2 === 0;
+    let left;
+    if (onRight) { left = stepRect.right - sRect.left + 10; mascot.classList.add('flip'); }
+    else         { left = stepRect.left - sRect.left - 120; mascot.classList.remove('flip'); }
+    const maxLeft = stepsSection.clientWidth - 120;
+    if (left < 5) left = 5;
+    if (left > maxLeft) left = maxLeft;
+    mascot.style.top = stepCenterY + 'px';
+    mascot.style.left = left + 'px';
+    speech.textContent = step.dataset.tip || '';
+    mascot.classList.add('show-speech');
+    stepItems.forEach(li => li.classList.remove('highlight'));
+    step.classList.add('highlight');
+  }
+  const mascotObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !mascotActive) {
+        mascotActive = true;
+        moveMascotToStep(currentStep);
+        mascotTimer = setInterval(() => {
+          currentStep = (currentStep + 1) % stepItems.length;
+          moveMascotToStep(currentStep);
+        }, 3500);
+      } else if (!entry.isIntersecting && mascotActive) {
+        mascotActive = false;
+        clearInterval(mascotTimer);
+      }
+    });
+  }, { threshold: 0.2 });
+  mascotObserver.observe(stepsSection);
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (mascotActive) moveMascotToStep(currentStep); }, 150);
+  });
+
+  /* =========================================================================
+     CHATBOT — Knowledge base + elastic/fuzzy search
+     ----------------------------------------------------------------------
+     Approach:
+       1. Each KB entry has multiple keyword variants (typos, synonyms).
+       2. Query is normalized (lowercase, strip punctuation, trim).
+       3. Score each entry by:
+          - exact substring match in keywords        (+10)
+          - token-level match (any query word in kw) (+5 per match)
+          - fuzzy match — Levenshtein distance ≤ 2   (+3 per match)
+          - prefix match (typed partial word)        (+4 per match)
+       4. Best-scoring entry above threshold wins. Otherwise fallback.
+  ========================================================================= */
+
+  const KB = [
+    {
+      id: 'prize',
+      keywords: ['prize','prizes','win','winning','reward','money','cash','amount','how much','5000','rs','rupees','₹','grand','runner','runners','runner-up'],
+      answer: `<strong>🏆 Prizes:</strong><br>• <strong>Grand Prize:</strong> ₹5,000 cash + featured on Tarang+ socials<br>• <strong>Runners Up:</strong> Tarang+ merch + Premium subscriptions`
+    },
+    {
+      id: 'deadline',
+      keywords: ['deadline','last date','last day','due','due date','submit by','end date','closing','close','closes','when ends','last','final date','expire'],
+      answer: `<strong>📅 Deadline:</strong> All entries must be posted by <em>[Insert Date Here]</em>. Don't wait till the last minute — the algorithm rewards early posters!`
+    },
+    {
+      id: 'how_to_enter',
+      keywords: ['how to enter','enter','entry','how do i','participate','participating','take part','join','sign up','register','registration','steps','process','procedure'],
+      answer: `<strong>🎬 How to enter (4 steps):</strong><br>1️⃣ Download our clips<br>2️⃣ Edit a meme using at least one clip<br>3️⃣ Post on Instagram or Facebook<br>4️⃣ Use #TarangPlusMemeBattle and tag @TarangPlus`
+    },
+    {
+      id: 'download',
+      keywords: ['download','clip','clips','asset','assets','footage','video','videos','where','link','folder','drive','google drive','zip','source'],
+      answer: `<strong>📥 Get the clips here:</strong> <a href="https://drive.google.com/drive/folders/1q-IMlr1PHkJSwRo0hczSpzgUG8apb0hu" target="_blank" rel="noopener">Open Google Drive folder</a><br>All clips are HD and watermark-free!`
+    },
+    {
+      id: 'duration',
+      keywords: ['duration','length','long','seconds','time','how long','minute','minutes','reel','reels','short','shorts','size'],
+      answer: `<strong>⏱️ Length:</strong> Video memes should be between <strong>15 to 60 seconds</strong> — perfect for Reels and Shorts.`
+    },
+    {
+      id: 'platforms',
+      keywords: ['where post','where upload','platform','platforms','instagram','insta','ig','facebook','fb','social','social media','where do i post','reel','tiktok','youtube'],
+      answer: `<strong>📲 Where to post:</strong> Upload on <strong>Instagram</strong> or <strong>Facebook</strong>. Don't forget <em>#TarangPlusMemeBattle</em> + tag <em>@TarangPlus</em>!`
+    },
+    {
+      id: 'hashtag',
+      keywords: ['hashtag','tag','tags','mention','#','tarangplusmemebattle','@tarangplus','handle','what to tag'],
+      answer: `<strong>🏷️ Mandatory tags:</strong><br>• Hashtag: <strong>#TarangPlusMemeBattle</strong><br>• Mention: <strong>@TarangPlus</strong><br>Without these we can't find your entry!`
+    },
+    {
+      id: 'judging',
+      keywords: ['judge','judging','select','selection','winner','winners','criteria','how chosen','how chose','decide','decided','pick','picked','engagement','likes','creativity'],
+      answer: `<strong>🏅 How winners are picked:</strong><br>• <strong>Creativity:</strong> 50%<br>• <strong>Audience engagement / likes:</strong> 50%<br>So creative + engaging = unbeatable combo!`
+    },
+    {
+      id: 'rules',
+      keywords: ['rule','rules','guidelines','allowed','not allowed','what can i','can i use','restrictions','terms'],
+      answer: `<strong>⚖️ Rules in short:</strong><br>• Original memes only — no plagiarism<br>• No offensive/hateful content<br>• 15–60 sec for videos<br>• Tarang+ may reshare your meme (with credit)<br>• Must use our hashtag + tag`
+    },
+    {
+      id: 'originality',
+      keywords: ['original','originality','copy','copied','steal','stolen','plagiarism','plagiarize','reuse','old meme','recycled'],
+      answer: `<strong>👑 Originality is king:</strong> Stolen or recycled memes will be disqualified immediately. Make it FRESH!`
+    },
+    {
+      id: 'usage_rights',
+      keywords: ['rights','copyright','use my meme','reshare','share my','permission','license','can they use','credit'],
+      answer: `<strong>📜 Usage rights:</strong> By entering, you let Tarang+ reshare your meme on our official channels — and you'll always get credited as the creator!`
+    },
+    {
+      id: 'tips',
+      keywords: ['tip','tips','advice','suggestion','help me win','strategy','best way','pro tip','recommend','what should'],
+      answer: `<strong>💡 Pro tips:</strong><br>• Keep it relatable — "that's so me!"<br>• Use trending Odia audio<br>• Reply to comments to boost engagement<br>• Post when your followers are most active`
+    },
+    {
+      id: 'eligibility',
+      keywords: ['eligible','eligibility','who can','age','open to','everyone','only odia','from where','location','country','outside odisha'],
+      answer: `<strong>🌍 Who can enter:</strong> Anyone who loves Odia content and can make a meme! We're looking for the funniest creators — wherever you are.`
+    },
+    {
+      id: 'meme_type',
+      keywords: ['type of meme','what kind','image meme','static meme','video meme','remix','format','allowed format','still image','gif'],
+      answer: `<strong>🎨 Allowed formats:</strong> Video memes, remixes, OR classic static image memes — anything goes, as long as you use at least one of our clips.`
+    },
+    {
+      id: 'cost',
+      keywords: ['cost','fee','pay','price','free','charge','any cost','entry fee'],
+      answer: `<strong>💸 100% FREE</strong> to enter! No fees, no catch — just pure meme energy.`
+    },
+    {
+      id: 'multiple_entries',
+      keywords: ['multiple','more than one','many entries','can i submit','several memes','two memes','as many'],
+      answer: `<strong>🎬 Multiple entries:</strong> Yes! You can submit as many memes as you want — the more you make, the better your chances!`
+    },
+    {
+      id: 'about_tarang',
+      keywords: ['what is tarang','tarang plus','tarang+','about tarang','who','what is this','platform','ott'],
+      answer: `<strong>🎭 Tarang+</strong> is Odisha's first OTT platform — owned by Odisha Television Ltd. Your one-stop destination for Odia entertainment: shows, movies, jatra, music, and more!`
+    },
+    {
+      id: 'contact',
+      keywords: ['contact','help','issue','problem','support','reach','question','doubt','dm','message'],
+      answer: `<strong>📩 Need help?</strong> DM us on <strong>@TarangPlus</strong> on Instagram or Facebook — we'll get back to you ASAP!`
+    },
+    {
+      id: 'greeting',
+      keywords: ['hi','hello','hey','yo','hola','namaste','hii','heyy','good morning','good evening','sup','greetings'],
+      answer: `Hey there! 👋 I'm <strong>Tara-bot</strong>, your Meme Battle assistant. Ask me about prizes, rules, deadlines, how to enter — anything!`
+    },
+    {
+      id: 'thanks',
+      keywords: ['thanks','thank you','thx','tysm','appreciate','cheers','dhanyabad'],
+      answer: `Anytime! 🎉 Best of luck with your meme — go win that ₹5,000! 💰`
+    }
+  ];
+
+  /* ----- Elastic search engine ----- */
+
+  // Levenshtein distance (typo-tolerance, max checked = 2)
+  function levenshtein(a, b) {
+    if (a === b) return 0;
+    if (!a.length) return b.length;
+    if (!b.length) return a.length;
+    if (Math.abs(a.length - b.length) > 2) return 99; // early exit
+    const m = [];
+    for (let i = 0; i <= b.length; i++) m[i] = [i];
+    for (let j = 0; j <= a.length; j++) m[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        m[i][j] = b[i-1] === a[j-1]
+          ? m[i-1][j-1]
+          : Math.min(m[i-1][j-1] + 1, m[i][j-1] + 1, m[i-1][j] + 1);
+      }
+    }
+    return m[b.length][a.length];
+  }
+
+  function normalize(s) {
+    return s.toLowerCase()
+            .replace(/[?!.,;:'"()\[\]{}]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+  }
+
+  // common stopwords to ignore in token matching
+  const STOPWORDS = new Set(['the','a','an','is','are','was','were','i','you','me','my','of','to','for','do','does','did','have','has','can','could','would','will','what','where','when','why','how','about','tell','please']);
+
+  function tokenize(s) {
+    return normalize(s).split(' ').filter(t => t && !STOPWORDS.has(t));
+  }
+
+  function searchKB(query) {
+    const qNorm = normalize(query);
+    if (!qNorm) return null;
+    const qTokens = tokenize(query);
+
+    let best = { entry: null, score: 0 };
+
+    for (const entry of KB) {
+      let score = 0;
+
+      for (const kw of entry.keywords) {
+        const kwNorm = kw.toLowerCase();
+
+        // 1) exact substring of full keyword phrase
+        if (qNorm.includes(kwNorm)) score += 10;
+
+        // 2) token-level matches
+        const kwTokens = kwNorm.split(' ').filter(Boolean);
+        for (const qt of qTokens) {
+          for (const kt of kwTokens) {
+            if (qt === kt) score += 5;
+            else if (kt.startsWith(qt) && qt.length >= 3) score += 4;       // prefix
+            else if (qt.startsWith(kt) && kt.length >= 3) score += 4;       // partial
+            else if (qt.length >= 4 && kt.length >= 4) {
+              const d = levenshtein(qt, kt);
+              if (d === 1) score += 4;        // 1-char typo
+              else if (d === 2) score += 2;   // 2-char typo
+            }
+          }
+        }
+      }
+
+      if (score > best.score) best = { entry, score };
+    }
+
+    // threshold to avoid wild guesses
+    return best.score >= 4 ? best.entry : null;
+  }
+
+  /* ----- Chat UI logic ----- */
+
+  const chatToggle = document.getElementById('chatToggle');
+  const chatWindow = document.getElementById('chatWindow');
+  const chatClose  = document.getElementById('chatClose');
+  const chatMsgs   = document.getElementById('chatMessages');
+  const chatInput  = document.getElementById('chatInput');
+  const chatSend   = document.getElementById('chatSend');
+  const badgeDot   = chatToggle.querySelector('.badge-dot');
+
+  const SUGGESTIONS = ['Prizes?', 'How to enter?', 'Deadline?', 'Download clips', 'Rules', 'Tips to win'];
+
+  function addBotMessage(html, withChips) {
+    const el = document.createElement('div');
+    el.className = 'msg bot';
+    el.innerHTML = html;
+    if (withChips) {
+      const wrap = document.createElement('div');
+      wrap.className = 'chips';
+      SUGGESTIONS.forEach(s => {
+        const b = document.createElement('button');
+        b.className = 'chip';
+        b.textContent = s;
+        b.addEventListener('click', () => handleUserMessage(s));
+        wrap.appendChild(b);
+      });
+      el.appendChild(wrap);
+    }
+    chatMsgs.appendChild(el);
+    applyAll3DEmojis(el);
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
+
+  function addUserMessage(text) {
+    const el = document.createElement('div');
+    el.className = 'msg user';
+    el.textContent = text;
+    chatMsgs.appendChild(el);
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
+
+  function showTyping() {
+    const el = document.createElement('div');
+    el.className = 'typing';
+    el.id = 'typingIndicator';
+    el.innerHTML = '<span></span><span></span><span></span>';
+    chatMsgs.appendChild(el);
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
+  function hideTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+  }
+
+  function handleUserMessage(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    addUserMessage(trimmed);
+    chatInput.value = '';
+    showTyping();
+
+    setTimeout(() => {
+      hideTyping();
+      const match = searchKB(trimmed);
+      if (match) {
+        addBotMessage(match.answer);
+      } else {
+        addBotMessage(
+          `Hmm, I'm not sure about that one 🤔 But I can help with:<br>• <strong>Prizes</strong> & rewards<br>• <strong>Deadline</strong><br>• <strong>How to enter</strong><br>• <strong>Download</strong> the clips<br>• <strong>Rules</strong> & judging<br>Try asking about any of these!`
+        );
+      }
+    }, 500 + Math.random() * 400);
+  }
+
+  /* Open / close */
+  let chatOpened = false;
+  function openChat() {
+    chatWindow.classList.add('open');
+    chatInput.focus();
+    badgeDot.style.display = 'none';
+    if (!chatOpened) {
+      chatOpened = true;
+      setTimeout(() => {
+        addBotMessage(
+          `Hey! 👋 I'm <strong>Tara-bot</strong>. Ask me anything about the Meme Battle — or pick one below:`,
+          true
+        );
+      }, 200);
+    }
+  }
+  function closeChat() { chatWindow.classList.remove('open'); }
+
+  chatToggle.addEventListener('click', () => {
+    chatWindow.classList.contains('open') ? closeChat() : openChat();
+  });
+  chatClose.addEventListener('click', closeChat);
+  chatSend.addEventListener('click', () => handleUserMessage(chatInput.value));
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); handleUserMessage(chatInput.value); }
+  });
+</script>
+
+</body>
+</html>

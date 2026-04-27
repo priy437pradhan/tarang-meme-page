@@ -356,6 +356,111 @@
     h1.title { text-shadow: 3px 3px 0 #ED1B24, 6px 6px 0 #0C4DA1; }
     .btn { padding: 1rem 1.75rem; font-size: 1rem; }
   }
+
+  .tagline {
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.5px;
+  margin-bottom: 1.5rem;
+  /* gradient text fill */
+  background: linear-gradient(90deg, #FFD602 0%, #FFFFFF 50%, #FFD602 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* shimmer + pop entrance */
+  animation: shimmer 3s linear infinite, taglinePop 0.8s ease-out;
+  text-shadow: 0 0 30px rgba(255, 214, 2, 0.4);
+  position: relative;
+  display: inline-block;
+}
+
+/* shimmer — gradient slides across the text */
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* pop-in on page load */
+@keyframes taglinePop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* the ₹5,000 highlight — gold pill with pulse */
+.tagline .prize-amount {
+  display: inline-block;
+  background: linear-gradient(135deg, #ED1B24, #b30810);
+  -webkit-text-fill-color: #FFD602;
+  color: #FFD602;
+  padding: 0.1em 0.6em;
+  border-radius: 12px;
+  border: 2px solid #FFD602;
+  box-shadow: 0 4px 15px rgba(237, 27, 36, 0.5);
+  animation: prizePulse 1.5s ease-in-out infinite;
+  margin: 0 0.15em;
+}
+
+@keyframes prizePulse {
+  0%, 100% {
+    transform: scale(1) rotate(-1deg);
+    box-shadow: 0 4px 15px rgba(237, 27, 36, 0.5),
+                0 0 0 0 rgba(255, 214, 2, 0.7);
+  }
+  50% {
+    transform: scale(1.08) rotate(1deg);
+    box-shadow: 0 6px 25px rgba(237, 27, 36, 0.7),
+                0 0 0 12px rgba(255, 214, 2, 0);
+  }
+}
+
+/* money emoji bounce */
+.tagline .money {
+  display: inline-block;
+  animation: moneyShake 1.2s ease-in-out infinite;
+}
+
+@keyframes moneyShake {
+  0%, 100% { transform: rotate(-15deg) scale(1); }
+  25%      { transform: rotate(15deg) scale(1.2); }
+  50%      { transform: rotate(-10deg) scale(1.1); }
+  75%      { transform: rotate(10deg) scale(1.15); }
+}
+
+/* ===== Site Logo (top-left) ===== */
+.site-logo {
+  position: fixed;
+  top: 1.25rem;
+  left: 5.5rem;
+  z-index: 10;
+  display: inline-block;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+.site-logo:hover {
+  transform: scale(1.05) rotate(-2deg);
+}
+.site-logo .logo-svg {
+  width: 140px;
+  height: auto;
+  display: block;
+}
+
+/* Push hero down so logo doesn't overlap the badge on small screens */
+@media (max-width: 600px) {
+  .site-logo {
+    top: 0.75rem;
+    left: 0.75rem;
+  }
+  .site-logo .logo-svg {
+    width: 100px;
+  }
+  .hero {
+    padding-top: 5rem; /* extra room for logo on mobile */
+  }
+}
 </style>
 </head>
 <body>
@@ -364,13 +469,17 @@
 <div class="emoji-rain" id="emojiRain" aria-hidden="true"></div>
 
 <div class="container">
-
+<a href="https://tarangplus.in/" class="site-logo">
+  <img src="images/tarangplus.png" alt="Tarang+" class="logo-svg" />
+</a>
   <!-- HERO -->
   <header class="hero">
     <span class="badge">🔥 Odisha's Biggest Meme Showdown 🔥</span>
-    <h1 class="title">Tarang+ Meme Battle<br>Challenge Accepted! 💥</h1>
-    <p class="headline">Memes Don't Make Money? Prove Them Wrong.</p>
-    <p class="tagline">Create. Upload. Win ₹5,000. <span class="money">💰</span></p>
+    <h1 class="title">Tarang+ Meme Battle 💥</h1>
+    <p class="headline">Memes Don't Make Money? <br> Prove Them Wrong.</p>
+    <p class="tagline">
+  Create. Upload. Win <span class="prize-amount">₹5,000</span> <span class="money e3d" data-e="💰"></span>
+</p>
     <p class="hero-desc">Think you're the funniest creator in Odisha? Tarang+ is handing over the keys to our content library. We provide the clips, you provide the comedy. The best meme takes home the cash! 🎤🎬</p>
     <a href="#download" class="btn">🎬 Grab the Clips</a>
   </header>
@@ -396,8 +505,8 @@
       </li>
       <li>
         <span class="num">4</span>
-        <strong>Mandatory Tags 🏷️</strong>
-        Use <em>#TarangPlusMemeBattle</em> and tag <em>@TarangPlus</em> so we can find your entry.
+        <strong>Mandatory Tags and Collab🏷️</strong>
+        Use  <em>#TarangPlusMemeBattle  </em> and collab with @tarangplusodisha so we can find your entry.
       </li>
     </ol>
   </section>
@@ -419,7 +528,7 @@
       <li><strong>Respect the Craft 🙏:</strong> No offensive, derogatory, or hateful content. Keep it funny, not harmful.</li>
       <li><strong>Duration ⏱️:</strong> Video memes should be between 15 to 60 seconds (perfect for Reels/Shorts).</li>
       <li><strong>Usage Rights 📜:</strong> By entering, you grant Tarang+ the right to reshare your meme on our official channels (with credit to you!).</li>
-      <li><strong>Deadline 📅:</strong> All entries must be posted by <em>[Insert Date Here]</em>.</li>
+      <li><strong>Deadline 📅:</strong> All entries must be posted by <em>31st May</em>.</li>
       <li><strong>Winner Selection 🏅:</strong> Based on <em>Creativity (50%)</em> and <em>Audience Engagement/Likes (50%)</em>.</li>
     </ul>
   </section>
@@ -455,6 +564,7 @@
   <section class="final-cta reveal">
     <h2>Ready to Become the Next Meme Lord? 👑</h2>
     <a href="https://drive.google.com/drive/folders/1q-IMlr1PHkJSwRo0hczSpzgUG8apb0hu" target="_blank" rel="noopener" class="btn">🎬 Grab the Clips & Start Editing 🚀</a>
+  <h1 class="title" style="margin-top: 40px;">Challenge Accepted!</h1>
   </section>
 
 </div>

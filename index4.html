@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Election Cube Widget — Demo</title>
+
+<!--
+================================================================================
+  ELECTION CUBE — CORNER WIDGET
+  ------------------------------------------------------------------------------
+  Slide flow per loop:
+    State 1 name → Party 1 → Party 2 → ... → State 2 name → Party 1 → ...
+    → State 3 name → ... → loops back to State 1 name.
+
+  Cube has 4 side faces; hidden back face is silently swapped to the next
+  upcoming slide while out of view, so unlimited slides display smoothly with
+  no blank faces.
+
+  INTEGRATION (vendor): copy the 3 marked sections below and replace
+  fetchElectionData() with a real call to the live data feed.
+
+  Required data shape (Promise resolving to):
+    [
+      { stateName, totalSeats, counted, parties: [{short, name, seats, color}, ...] },
+      { ... state 2 ... },
+      { ... state 3 ... }
+    ]
+================================================================================
+-->
+
+<style>
+  /* ===== Demo page (NOT part of widget) ===== */
+  body {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #f5f1ea;
+    color: #1a1a1a;
+    line-height: 1.7;
+  }
+  .demo-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 240px; }
+  .demo-page h1 { font-size: 42px; margin-bottom: 8px; line-height: 1.2; }
+  .demo-page .meta { color: #888; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 32px; }
+  .demo-page p { margin-bottom: 18px; font-size: 17px; }
+  .demo-page .lead { font-size: 20px; color: #333; }
+
+  /* ===== CUBE WIDGET STYLES ===== */
+  #election-cube-widget {
+    --ec-bg-1: #1e293b;        /* slate */
+    --ec-bg-2: #0f172a;        /* darker slate */
+    --ec-accent: #c2410c;      /* warm sienna (newsroom-feel) */
+    --ec-accent-soft: #d97757; /* lighter sienna */
+    --ec-text-1: #f8fafc;
+    --ec-text-2: #cbd5e1;
+    --ec-text-3: #94a3b8;
+    --ec-border: rgba(255, 255, 255, 0.12);
+    --ec-divider: rgba(255, 255, 255, 0.15);
+
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    user-select: none;
+  }
+
+  #election-cube-widget .ec-stage {
+    width: 170px;
+    height: 170px;
+    perspective: 800px;
+    position: relative;
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.28));
+  }
+
+  /* The cube — TILTED so the 3D shape reads at a glance.
+     We add a small constant rotateX + rotateY tilt so you see top edge + a side edge. */
+  #election-cube-widget .ec-cube {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    top: 30px;
+    left: 30px;
+    transform-style: preserve-3d;
+    transition: transform 1.3s cubic-bezier(0.65, 0, 0.35, 1);
+    /* Initial tilt is set inline via JS so rotation math stays clean */
+  }
+
+  #election-cube-widget .ec-face {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: linear-gradient(155deg, var(--ec-bg-1) 0%, var(--ec-bg-2) 100%);
+    border: 1px solid var(--ec-border);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      inset 0 -16px 32px rgba(0, 0, 0, 0.3);
+    backface-visibility: hidden;
+    padding: 11px;
+    color: var(--ec-text-1);
+    display: flex;
+    flex-direction: column;
+  }
+  #election-cube-widget .ec-face::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--ec-accent);
+    z-index: 2;
+  }
+
+  #election-cube-widget .ec-face-front  { transform: rotateY(  0deg) translateZ(55px); }
+  #election-cube-widget .ec-face-right  { transform: rotateY( 90deg) translateZ(55px); }
+  #election-cube-widget .ec-face-back   { transform: rotateY(180deg) translateZ(55px); }
+  #election-cube-widget .ec-face-left   { transform: rotateY(-90deg) translateZ(55px); }
+  #election-cube-widget .ec-face-top    { transform: rotateX( 90deg) translateZ(55px); background: #0a1322; }
+  #election-cube-widget .ec-face-bottom { transform: rotateX(-90deg) translateZ(55px); background: #0a1322; }
+
+  /* State-name slide */
+  #election-cube-widget .ec-slide-state {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(194, 65, 12, 0.22), transparent 65%),
+      linear-gradient(155deg, var(--ec-bg-1) 0%, var(--ec-bg-2) 100%);
+  }
+  #election-cube-widget .ec-state-eyebrow {
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    letter-spacing: 0.3em;
+    color: var(--ec-text-3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  #election-cube-widget .ec-state-title {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.05;
+    text-transform: uppercase;
+    color: var(--ec-text-1);
+    margin-bottom: 9px;
+    letter-spacing: 0.01em;
+  }
+  #election-cube-widget .ec-state-counted {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--ec-accent-soft);
+    text-transform: uppercase;
+  }
+  #election-cube-widget .ec-state-counted strong {
+    font-size: 12px;
+    color: var(--ec-text-1);
+    display: block;
+    margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Party-result slide */
+  #election-cube-widget .ec-slide-party { justify-content: space-between; }
+  #election-cube-widget .ec-party-context {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: var(--ec-text-3);
+    text-transform: uppercase;
+  }
+  #election-cube-widget .ec-party-state-tag { color: var(--ec-text-2); font-weight: 700; }
+  #election-cube-widget .ec-party-block { padding: 2px 0; }
+  #election-cube-widget .ec-party-short {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--ec-pc, var(--ec-text-1));
+    letter-spacing: 0.02em;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+  #election-cube-widget .ec-party-name {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ec-text-2);
+    line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  #election-cube-widget .ec-party-seats-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-top: 1px solid var(--ec-divider);
+    padding-top: 5px;
+  }
+  #election-cube-widget .ec-party-seats-num {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--ec-text-1);
+  }
+  #election-cube-widget .ec-party-seats-label {
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: var(--ec-text-3);
+    text-transform: uppercase;
+  }
+
+  /* Live badge */
+  #election-cube-widget .ec-live-badge {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    background: var(--ec-accent);
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    pointer-events: none;
+  }
+  #election-cube-widget .ec-live-dot {
+    width: 5px; height: 5px; background: #fff; border-radius: 50%;
+    animation: ec-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes ec-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+  /* Close button */
+  #election-cube-widget .ec-close {
+    position: absolute;
+    top: 0; right: 0;
+    width: 22px; height: 22px;
+    background: rgba(15, 23, 42, 0.85);
+    color: var(--ec-text-2);
+    border: 1px solid var(--ec-border);
+    border-radius: 50%;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.2s;
+    z-index: 2;
+  }
+  #election-cube-widget .ec-close:hover {
+    background: var(--ec-accent);
+    color: #fff;
+    border-color: transparent;
+  }
+
+  /* Minimized state */
+  #election-cube-widget.ec-minimized .ec-stage,
+  #election-cube-widget.ec-minimized .ec-live-badge,
+  #election-cube-widget.ec-minimized .ec-close { display: none; }
+  #election-cube-widget .ec-restore {
+    display: none;
+    background: var(--ec-bg-2);
+    color: var(--ec-text-1);
+    border: 1px solid var(--ec-accent);
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    align-items: center;
+    gap: 6px;
+  }
+  #election-cube-widget.ec-minimized .ec-restore { display: inline-flex; }
+  #election-cube-widget .ec-restore:hover { background: var(--ec-accent); }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    #election-cube-widget { bottom: 14px; right: 14px; }
+    #election-cube-widget .ec-stage { width: 150px; height: 150px; }
+    #election-cube-widget .ec-cube { width: 95px; height: 95px; top: 27px; left: 27px; }
+    #election-cube-widget .ec-face { width: 95px; height: 95px; padding: 9px; border-radius: 8px; }
+    #election-cube-widget .ec-face-front  { transform: rotateY(  0deg) translateZ(47.5px); }
+    #election-cube-widget .ec-face-right  { transform: rotateY( 90deg) translateZ(47.5px); }
+    #election-cube-widget .ec-face-back   { transform: rotateY(180deg) translateZ(47.5px); }
+    #election-cube-widget .ec-face-left   { transform: rotateY(-90deg) translateZ(47.5px); }
+    #election-cube-widget .ec-face-top    { transform: rotateX( 90deg) translateZ(47.5px); }
+    #election-cube-widget .ec-face-bottom { transform: rotateX(-90deg) translateZ(47.5px); }
+    #election-cube-widget .ec-state-title { font-size: 14px; }
+    #election-cube-widget .ec-party-short { font-size: 18px; }
+    #election-cube-widget .ec-party-seats-num { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<article class="demo-page">
+  <div class="meta">National · Election 2026</div>
+  <h1>Counting underway across three states as final tallies emerge</h1>
+  <p class="lead">
+    Polling officers across the three states began the count at 8 AM, with early
+    leads emerging within the first two hours. The live election cube at the
+    bottom-right cycles through each state, showing party-by-party seat counts.
+  </p>
+  <p>
+    The cube introduces each state by name, then rotates through every party's
+    tally one face at a time. After the third state's parties, it loops back to
+    the first state.
+  </p>
+  <p>
+    This is demo content. The widget on the right is fully self-contained — your
+    vendor only needs to wire one function to your existing data feed.
+  </p>
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua.
+  </p>
+  <p>
+    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
+    eu fugiat nulla pariatur.
+  </p>
+</article>
+
+<!-- ===== CUBE WIDGET MARKUP ===== -->
+<div id="election-cube-widget">
+  <div class="ec-live-badge"><span class="ec-live-dot"></span> Live</div>
+  <button class="ec-close" aria-label="Minimize">×</button>
+  <div class="ec-stage">
+    <div class="ec-cube" id="ec-cube">
+      <div class="ec-face ec-face-front"></div>
+      <div class="ec-face ec-face-right"></div>
+      <div class="ec-face ec-face-back"></div>
+      <div class="ec-face ec-face-left"></div>
+      <div class="ec-face ec-face-top"></div>
+      <div class="ec-face ec-face-bottom"></div>
+    </div>
+  </div>
+  <button class="ec-restore">Show Election Cube</button>
+</div>
+
+<script>
+/* ===== CUBE WIDGET SCRIPT ===== */
+(function () {
+  'use strict';
+
+  /* ----- CONFIG ----- */
+  const SLIDE_DURATION_MS = 4500;
+  const REFRESH_MS = 15000;
+
+  // Constant tilt so the cube reads as 3D (top edge + a hint of one side visible).
+  // We always layer this on top of the rotation around Y.
+  const TILT_X = -18;   // degrees: tilt forward so we see the top
+  const TILT_Y_OFFSET = -22; // degrees: rotate slightly so right edge is visible
+
+  /* ----- STATE ----- */
+  let slides = [];
+  let slideIndex = 0;
+  let advanceCount = 0;
+  let advanceTimer = null;
+  let isPaused = false;
+
+  const FACE_ORDER = ['front', 'right', 'back', 'left'];
+
+  /* ----- HELPERS ----- */
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+  function getFaceEl(name) { return document.querySelector('#ec-cube .ec-face-' + name); }
+
+  /* ----- APPLY ROTATION (with constant tilt) ----- */
+  function applyRotation() {
+    const yRotation = TILT_Y_OFFSET + (-90 * advanceCount);
+    document.getElementById('ec-cube').style.transform =
+      `rotateX(${TILT_X}deg) rotateY(${yRotation}deg)`;
+  }
+
+  /* ----- BUILD SLIDE LIST ----- */
+  function buildSlides(states) {
+    const list = [];
+    states.forEach((state, sIdx) => {
+      list.push({ type: 'state', state, stateIndex: sIdx });
+      const sorted = [...state.parties].sort((a, b) => b.seats - a.seats);
+      sorted.forEach((party, pIdx) => {
+        list.push({
+          type: 'party', state, stateIndex: sIdx,
+          party, rank: pIdx + 1, totalParties: sorted.length
+        });
+      });
+    });
+    return list;
+  }
+
+  /* ----- RENDER A SLIDE ----- */
+  function renderSlide(faceEl, slide) {
+    if (!faceEl) return;
+    if (!slide) { faceEl.innerHTML = ''; return; }
+
+    const positionClasses = ['ec-face-front','ec-face-right','ec-face-back','ec-face-left','ec-face-top','ec-face-bottom'];
+    const keep = ['ec-face'].concat(positionClasses.filter(c => faceEl.classList.contains(c)));
+    faceEl.className = keep.join(' ');
+    faceEl.style.removeProperty('--ec-pc');
+
+    if (slide.type === 'state') {
+      faceEl.classList.add('ec-slide-state');
+      faceEl.innerHTML = `
+        <div class="ec-state-eyebrow">Now Showing</div>
+        <div class="ec-state-title">${esc(slide.state.stateName)}</div>
+        <div class="ec-state-counted">
+          Counted
+          <strong>${slide.state.counted} / ${slide.state.totalSeats}</strong>
+        </div>
+      `;
+    } else {
+      faceEl.classList.add('ec-slide-party');
+      faceEl.style.setProperty('--ec-pc', slide.party.color || '#cbd5e1');
+      faceEl.innerHTML = `
+        <div class="ec-party-context">
+          <span class="ec-party-state-tag">${esc(slide.state.stateName)}</span>
+          <span>${slide.rank}/${slide.totalParties}</span>
+        </div>
+        <div class="ec-party-block">
+          <div class="ec-party-short">${esc(slide.party.short)}</div>
+          <div class="ec-party-name">${esc(slide.party.name)}</div>
+        </div>
+        <div class="ec-party-seats-row">
+          <span class="ec-party-seats-num">${slide.party.seats}</span>
+          <span class="ec-party-seats-label">Seats</span>
+        </div>
+      `;
+    }
+  }
+
+  /* ----- INITIAL SETUP ----- */
+  function placeInitial() {
+    if (slides.length === 0) return;
+    FACE_ORDER.forEach((faceName, i) => {
+      renderSlide(getFaceEl(faceName), slides[i % slides.length]);
+    });
+    slideIndex = 0;
+    advanceCount = 0;
+    applyRotation();
+  }
+
+  /* ----- ADVANCE ----- */
+  function advance() {
+    if (isPaused || slides.length === 0) return;
+    advanceCount += 1;
+    slideIndex = (slideIndex + 1) % slides.length;
+    applyRotation();
+
+    const backFaceName = FACE_ORDER[(advanceCount + 2) % 4];
+    const upcomingSlide = slides[(slideIndex + 2) % slides.length];
+    renderSlide(getFaceEl(backFaceName), upcomingSlide);
+  }
+
+  /* ----- TIMING ----- */
+  function startTimer() {
+    stopTimer();
+    advanceTimer = setInterval(advance, SLIDE_DURATION_MS);
+  }
+  function stopTimer() {
+    if (advanceTimer) { clearInterval(advanceTimer); advanceTimer = null; }
+  }
+
+  /* ----- DATA REFRESH ----- */
+  async function refresh() {
+    try {
+      const data = await fetchElectionData();
+      if (!Array.isArray(data) || data.length === 0) return;
+
+      const wasEmpty = slides.length === 0;
+      slides = buildSlides(data);
+
+      if (wasEmpty) {
+        placeInitial();
+        startTimer();
+      } else {
+        if (slideIndex >= slides.length) slideIndex = 0;
+        const f = FACE_ORDER[advanceCount % 4];
+        const r = FACE_ORDER[(advanceCount + 1) % 4];
+        const b = FACE_ORDER[(advanceCount + 2) % 4];
+        renderSlide(getFaceEl(f), slides[slideIndex]);
+        renderSlide(getFaceEl(r), slides[(slideIndex + 1) % slides.length]);
+        renderSlide(getFaceEl(b), slides[(slideIndex + 2) % slides.length]);
+      }
+    } catch (err) {
+      console.error('[ElectionCube] fetch failed:', err);
+    }
+  }
+
+  /* ----- UI ----- */
+  const root = document.getElementById('election-cube-widget');
+  root.querySelector('.ec-close').addEventListener('click', (e) => {
+    e.stopPropagation();
+    root.classList.add('ec-minimized');
+    isPaused = true;
+    stopTimer();
+  });
+  root.querySelector('.ec-restore').addEventListener('click', () => {
+    root.classList.remove('ec-minimized');
+    isPaused = false;
+    startTimer();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopTimer();
+    else if (!root.classList.contains('ec-minimized')) startTimer();
+  });
+
+  /* ----- BOOT ----- */
+  refresh();
+  setInterval(refresh, REFRESH_MS);
+
+  /* ==========================================================================
+     DATA INTEGRATION  ←  VENDOR: REPLACE THIS FUNCTION'S BODY
+     ========================================================================== */
+  async function fetchElectionData() {
+    // ----- MOCK DATA. REPLACE WITH REAL API CALL. -----
+    // Example:
+    //   const res = await fetch('/api/election/live?states=A,B,C');
+    //   return await res.json();
+
+    return [
+      {
+        stateName: "State One",
+        totalSeats: 200,
+        counted: 178,
+        parties: [
+          { short: "PP",  name: "Progress Party",    seats: 92, color: "#d97757" },
+          { short: "UF",  name: "Unity Front",       seats: 64, color: "#7eb6c4" },
+          { short: "PA",  name: "People's Alliance", seats: 18, color: "#c5a572" }
+        ]
+      },
+      {
+        stateName: "State Two",
+        totalSeats: 147,
+        counted: 102,
+        parties: [
+          { short: "UF",  name: "Unity Front",       seats: 58, color: "#7eb6c4" },
+          { short: "PP",  name: "Progress Party",    seats: 33, color: "#d97757" },
+          { short: "RB",  name: "Regional Bloc",     seats:  9, color: "#c5a572" }
+        ]
+      },
+      {
+        stateName: "State Three",
+        totalSeats: 119,
+        counted: 88,
+        parties: [
+          { short: "PA",  name: "People's Alliance", seats: 41, color: "#c5a572" },
+          { short: "PP",  name: "Progress Party",    seats: 30, color: "#d97757" },
+          { short: "UF",  name: "Unity Front",       seats: 14, color: "#7eb6c4" }
+        ]
+      }
+    ];
+  }
+})();
+</script>
+
+</body>
+</html>

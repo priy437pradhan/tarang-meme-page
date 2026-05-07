@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThumbCraft — YT Thumbnail Maker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Sans+Odia:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0d0f;
+  --surface: #17171a;
+  --surface2: #1e1e22;
+  --surface3: #28282f;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --accent: #ff3b3b;
+  --accent2: #ff8800;
+  --accent-glow: rgba(255,59,59,0.18);
+  --text: #f0f0f2;
+  --muted: #8a8a96;
+  --radius: 10px;
+  --font-odia: 'Noto Sans Odia', 'Nirmala UI', 'Kalinga', sans-serif;
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; overflow: hidden; }
+
+/* ═══════════════════════════════ LAYOUT ═══════════════════════════════ */
+.app { display: grid; grid-template-rows: 54px 1fr; grid-template-columns: 270px 1fr 250px; height: 100vh; }
+
+/* ═══════════════════════════════ HEADER ═══════════════════════════════ */
+header {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 18px; gap: 14px;
+  position: relative; z-index: 10;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 21px; letter-spacing: 2px;
+  color: var(--accent);
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.logo svg { width: 20px; height: 20px; }
+.logo-sub { font-size: 9px; font-family: 'DM Sans', sans-serif; letter-spacing: 3px; color: var(--muted); font-weight: 500; margin-top: -2px; }
+
+.header-sep { width: 1px; height: 28px; background: var(--border2); flex-shrink: 0; }
+
+.view-pills { display: flex; gap: 3px; background: var(--surface2); border-radius: 8px; padding: 3px; }
+.view-pill {
+  background: transparent; border: none;
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 500;
+  padding: 5px 13px; border-radius: 6px; cursor: pointer; transition: all .15s;
+  white-space: nowrap;
+}
+.view-pill.active { background: var(--accent); color: #fff; }
+.view-pill:hover:not(.active) { color: var(--text); }
+
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.undo-btn, .redo-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); width: 32px; height: 32px; border-radius: 7px;
+  cursor: pointer; font-size: 14px; display: flex; align-items: center;
+  justify-content: center; transition: all .15s;
+}
+.undo-btn:hover, .redo-btn:hover { border-color: var(--border2); color: var(--text); }
+
+.copy-btn {
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500;
+  padding: 7px 16px; border-radius: 8px; cursor: pointer; transition: all .15s;
+}
+.copy-btn:hover { background: var(--surface3); }
+
+.export-btn {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  border: none; color: #fff; font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 600;
+  padding: 8px 20px; border-radius: 8px; cursor: pointer;
+  transition: opacity .15s; letter-spacing: .3px; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(255,59,59,0.3);
+}
+.export-btn:hover { opacity: .88; }
+
+/* ═══════════════════════════════ LEFT PANEL ═══════════════════════════════ */
+.left-panel {
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+.left-panel::-webkit-scrollbar { width: 3px; }
+.left-panel::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+.panel-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.panel-label {
+  font-size: 9.5px; font-weight: 600; letter-spacing: 1.4px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.panel-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Upload zone */
+.upload-zone {
+  border: 1.5px dashed rgba(255,59,59,.3); border-radius: var(--radius);
+  padding: 18px 12px; text-align: center; cursor: pointer;
+  transition: all .2s; color: var(--muted); font-size: 12px; line-height: 1.7;
+  position: relative;
+}
+.upload-zone:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.upload-zone.drag-active { border-color: var(--accent); background: var(--accent-glow); }
+.upload-zone svg { display: block; margin: 0 auto 8px; opacity: .45; }
+.upload-zone input { display: none; }
+.upload-limit { font-size: 10px; opacity: .5; margin-top: 2px; }
+
+/* Image chips */
+.img-list { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+.img-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 8px;
+  font-size: 11px; color: var(--text); animation: slideIn .2s ease;
+  cursor: grab;
+}
+.img-chip:active { cursor: grabbing; }
+.img-chip img { width: 40px; height: 26px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.img-chip-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 10px; }
+.img-chip-btns { display: flex; gap: 3px; flex-shrink: 0; }
+.img-chip-btn {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 12px; padding: 2px 5px;
+  border-radius: 4px; transition: all .15s;
+}
+.img-chip-btn:hover { background: rgba(255,59,59,.2); color: var(--accent); }
+.img-order-badge {
+  width: 18px; height: 18px; background: var(--surface3);
+  border-radius: 50%; font-size: 9px; font-weight: 700;
+  color: var(--muted); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Blend buttons */
+.blend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.blend-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 10.5px; font-weight: 500;
+  padding: 8px 5px; border-radius: 8px; cursor: pointer;
+  transition: all .15s; text-align: center; line-height: 1.3;
+}
+.blend-btn:hover { border-color: rgba(255,59,59,.4); color: var(--text); }
+.blend-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* Sliders */
+.slider-group { display: flex; flex-direction: column; gap: 9px; }
+.slider-row { display: flex; align-items: center; gap: 9px; }
+.slider-row label { font-size: 10.5px; color: var(--muted); min-width: 44px; }
+.slider-row input[type=range] {
+  flex: 1; appearance: none; height: 3px;
+  background: var(--surface3); border-radius: 3px; outline: none; cursor: pointer;
+}
+.slider-row input[type=range]::-webkit-slider-thumb {
+  appearance: none; width: 13px; height: 13px;
+  background: var(--accent); border-radius: 50%;
+  cursor: pointer; transition: transform .12s;
+  box-shadow: 0 0 0 3px rgba(255,59,59,.2);
+}
+.slider-row input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+.slider-val { font-size: 10.5px; color: var(--text); font-weight: 600; min-width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Reset slider button */
+.slider-reset {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 10px; padding: 0 2px;
+  border-radius: 3px; transition: all .15s;
+}
+.slider-reset:hover { color: var(--accent); }
+
+/* Overlay grid */
+.overlay-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.overlay-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 10px; padding: 7px 4px; border-radius: 7px;
+  cursor: pointer; transition: all .15s; text-align: center; line-height: 1.3;
+}
+.overlay-btn:hover { color: var(--text); border-color: var(--border2); }
+.overlay-btn.active { background: rgba(255,140,0,.12); border-color: var(--accent2); color: var(--accent2); font-weight: 600; }
+
+/* ═══════════════════════════════ CANVAS AREA ═══════════════════════════════ */
+.canvas-area {
+  display: flex; align-items: center; justify-content: center;
+  background: #080809;
+  background-image:
+    radial-gradient(circle at 50% 50%, #111116 0%, #080809 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,.012) 40px, rgba(255,255,255,.012) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,.012) 40px, rgba(255,255,255,.012) 41px);
+  position: relative; overflow: hidden;
+}
+.canvas-container {
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.05), 0 24px 80px rgba(0,0,0,.9);
+  border-radius: 2px; overflow: hidden;
+}
+#mainCanvas { display: block; }
+.text-layer {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; overflow: hidden; border-radius: 2px;
+}
+.draggable-text {
+  position: absolute; cursor: move; pointer-events: all;
+  user-select: none; line-height: 1.15;
+  transition: none; will-change: transform;
+}
+.draggable-text.selected::after {
+  content: ''; position: absolute; inset: -4px;
+  border: 1.5px dashed rgba(255,59,59,.7);
+  border-radius: 3px; pointer-events: none;
+  animation: dashAnim 1s linear infinite;
+}
+@keyframes dashAnim { to { stroke-dashoffset: -20; } }
+.draggable-text:hover { outline: 1px dashed rgba(255,255,255,.2); outline-offset: 3px; }
+.del-btn {
+  display: none; position: absolute; top: -10px; right: -10px;
+  width: 20px; height: 20px; background: var(--accent);
+  border: none; border-radius: 50%; color: #fff;
+  font-size: 10px; cursor: pointer;
+  align-items: center; justify-content: center; z-index: 10;
+  box-shadow: 0 2px 8px rgba(255,59,59,.5);
+}
+.draggable-text:hover .del-btn { display: flex; }
+
+.empty-state {
+  position: absolute; display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
+  color: rgba(255,255,255,.12); font-size: 13px;
+  pointer-events: none; text-align: center; line-height: 1.6;
+}
+.empty-state svg { opacity: .15; }
+.empty-arrow {
+  position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: rgba(255,255,255,.1); pointer-events: none;
+}
+
+.canvas-badge {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.7); backdrop-filter: blur(10px);
+  border: 1px solid var(--border); color: var(--muted);
+  font-size: 10.5px; padding: 4px 14px; border-radius: 20px;
+  pointer-events: none; white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.zoom-badge {
+  position: absolute; bottom: 12px; right: 16px;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(10px);
+  border: 1px solid var(--border); color: var(--muted);
+  font-size: 10px; padding: 3px 10px; border-radius: 20px;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════ RIGHT PANEL ═══════════════════════════════ */
+.right-panel {
+  background: var(--surface); border-left: 1px solid var(--border);
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+.right-panel::-webkit-scrollbar { width: 3px; }
+.right-panel::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+/* Language selector */
+.lang-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.lang-pill {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 11px; padding: 7px 10px; border-radius: 7px;
+  cursor: pointer; transition: all .15s; text-align: center;
+}
+.lang-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+.odia-trigger-btn {
+  background: linear-gradient(135deg, #6a0dad, #9b30ff);
+  border: none; color: #fff; font-family: 'DM Sans', sans-serif;
+  font-size: 10px; font-weight: 600; padding: 5px 10px;
+  border-radius: 6px; cursor: pointer; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(106,13,173,.4);
+}
+.odia-trigger-btn:hover { opacity: .85; }
+
+/* Text input */
+.text-area-input {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; padding: 10px; resize: vertical;
+  outline: none; transition: border-color .15s; line-height: 1.5;
+  min-height: 70px;
+}
+.text-area-input.odia-mode { font-family: var(--font-odia); font-size: 15px; }
+.text-area-input:focus { border-color: rgba(255,59,59,.45); }
+.text-area-input::placeholder { color: var(--muted); }
+
+/* Font select */
+.font-select, .mini-select {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 11.5px; padding: 8px 10px; outline: none; cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238a8a96' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  padding-right: 28px;
+}
+.font-select option, .mini-select option { background: #1e1e22; }
+
+/* Color palette */
+.color-palette { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.color-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  cursor: pointer; border: 2px solid transparent;
+  transition: all .15s; flex-shrink: 0;
+}
+.color-dot:hover { transform: scale(1.18); }
+.color-dot.active { border-color: #fff; box-shadow: 0 0 0 2px var(--accent); transform: scale(1.15); }
+.color-picker-wrap {
+  width: 22px; height: 22px; border-radius: 50%; overflow: hidden;
+  border: 2px dashed rgba(255,255,255,.25); cursor: pointer; position: relative; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.color-picker-wrap::before { content: '+'; color: rgba(255,255,255,.4); font-size: 13px; position: absolute; pointer-events: none; }
+.color-picker-wrap input[type=color] {
+  position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
+  cursor: pointer; border: none; outline: none; padding: 0; opacity: 0;
+}
+
+/* Style toggles */
+.style-toggles { display: flex; gap: 4px; }
+.style-toggle {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 700;
+  padding: 7px 4px; border-radius: 7px; cursor: pointer;
+  transition: all .15s; text-align: center;
+}
+.style-toggle:hover { color: var(--text); border-color: var(--border2); }
+.style-toggle.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+
+/* Text effect row */
+.effect-select {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 7px;
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 10.5px; padding: 6px 10px; outline: none; cursor: pointer; width: 100%;
+}
+.effect-select option { background: #1e1e22; }
+
+/* Add text button */
+.add-text-btn {
+  width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; color: #fff; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600; padding: 12px;
+  border-radius: 9px; cursor: pointer; transition: opacity .15s;
+  letter-spacing: .3px; box-shadow: 0 4px 14px rgba(255,59,59,.25);
+}
+.add-text-btn:hover { opacity: .87; }
+.add-text-btn:active { transform: scale(.98); }
+
+/* Layer item */
+.layer-item {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; padding: 7px 9px;
+  font-size: 10.5px; color: var(--muted);
+  animation: slideIn .2s ease; cursor: pointer; transition: all .15s;
+}
+.layer-item:hover { border-color: var(--border2); color: var(--text); }
+.layer-item.active-layer { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
+.layer-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.layer-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.layer-vis-btn, .layer-del-btn {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 12px; padding: 1px 4px;
+  border-radius: 3px; transition: all .15s;
+}
+.layer-vis-btn:hover { color: var(--text); }
+.layer-del-btn:hover { color: var(--accent); }
+
+/* Action row */
+.action-row {
+  padding: 12px 16px; display: flex; gap: 7px;
+  border-top: 1px solid var(--border); margin-top: auto; flex-shrink: 0;
+}
+.action-btn {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 500; padding: 8px 8px;
+  border-radius: 8px; cursor: pointer; transition: all .15s; text-align: center;
+}
+.action-btn:hover { border-color: var(--border2); color: var(--text); }
+.action-btn.danger:hover { border-color: rgba(255,59,59,.5); color: var(--accent); background: var(--accent-glow); }
+
+/* ═══════════════════════════════ ANIMATIONS ═══════════════════════════════ */
+@keyframes slideIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
+@keyframes popIn { from { opacity:0; transform:translate(-50%,-50%) scale(.92); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* ═══════════════════════════════ ODIA POPUP ═══════════════════════════════ */
+.popup-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px); z-index: 999;
+  display: none; align-items: center; justify-content: center;
+  animation: fadeIn .2s ease;
+}
+.popup-overlay.open { display: flex; }
+
+.odia-popup {
+  width: 300px; height: 320px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.04);
+  animation: popIn .2s cubic-bezier(.34,1.56,.64,1);
+}
+.popup-header {
+  background: linear-gradient(135deg, #5a0a9e, #8a20ff);
+  padding: 12px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.popup-title {
+  font-size: 13px; font-weight: 600; color: #fff;
+  display: flex; align-items: center; gap: 7px;
+}
+.popup-title span { font-size: 16px; }
+.popup-close {
+  background: rgba(255,255,255,.15); border: none; color: #fff;
+  width: 26px; height: 26px; border-radius: 50%;
+  cursor: pointer; font-size: 13px; display: flex; align-items: center;
+  justify-content: center; transition: background .15s;
+}
+.popup-close:hover { background: rgba(255,255,255,.3); }
+
+.popup-body {
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; flex: 1;
+}
+.popup-info {
+  background: rgba(255,140,0,.08); border: 1px solid rgba(255,140,0,.2);
+  border-radius: 7px; padding: 8px 10px;
+  font-size: 11px; color: rgba(255,200,100,.85); line-height: 1.5;
+}
+.popup-info a { color: #ffaa33; text-decoration: underline; }
+.popup-info a:hover { color: #ffd080; }
+
+.odia-paste-area {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; color: var(--text);
+  font-family: var(--font-odia);
+  font-size: 15px; padding: 10px;
+  resize: none; outline: none; transition: border-color .15s;
+  line-height: 1.6;
+}
+.odia-paste-area:focus { border-color: rgba(138,32,255,.5); }
+.odia-paste-area::placeholder { color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; }
+
+.popup-actions { display: flex; gap: 7px; }
+.popup-open-btn {
+  flex: 1; background: linear-gradient(135deg, #5a0a9e, #8a20ff);
+  border: none; color: #fff; font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 600; padding: 9px 10px;
+  border-radius: 8px; cursor: pointer; transition: opacity .15s;
+  text-align: center;
+}
+.popup-open-btn:hover { opacity: .85; }
+.popup-use-btn {
+  flex: 1; background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; color: #fff; font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 600; padding: 9px 10px;
+  border-radius: 8px; cursor: pointer; transition: opacity .15s;
+}
+.popup-use-btn:hover { opacity: .85; }
+
+/* ═══════════════════════════════ TOAST ═══════════════════════════════ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text); font-size: 12px; font-weight: 500;
+  padding: 9px 20px; border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.6);
+  z-index: 9999; pointer-events: none;
+  animation: toastIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.success { border-color: rgba(0,200,100,.3); color: #4eff9f; }
+.toast.error { border-color: rgba(255,59,59,.3); color: #ff7070; }
+@keyframes toastIn { from { opacity:0; transform:translate(-50%,10px); } to { opacity:1; transform:translate(-50%,0); } }
+
+/* misc */
+input[type=range] { accent-color: var(--accent); }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="var(--accent)"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+    <div><div>THUMBCRAFT</div><div class="logo-sub">THUMBNAIL STUDIO</div></div>
+  </div>
+  <div class="header-sep"></div>
+  <div class="view-pills">
+    <button class="view-pill active" data-view="yt" onclick="switchView('yt')">YT 1280×720</button>
+    <button class="view-pill" data-view="short" onclick="switchView('short')">Short 1080×1920</button>
+    <button class="view-pill" data-view="sq" onclick="switchView('sq')">Square 1080×1080</button>
+  </div>
+  <div class="header-right">
+    <button class="undo-btn" onclick="histUndo()" title="Undo">↩</button>
+    <button class="redo-btn" onclick="histRedo()" title="Redo">↪</button>
+    <div class="header-sep"></div>
+    <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Image</button>
+    <button class="export-btn" onclick="exportPNG()">⬇ Export PNG</button>
+  </div>
+</header>
+
+<!-- ═══ LEFT PANEL ═══ -->
+<aside class="left-panel">
+
+  <!-- Images -->
+  <div class="panel-section">
+    <div class="panel-label">Images</div>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(event)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+      Click or drag &amp; drop images<br>
+      <div class="upload-limit">JPEG · PNG · WEBP — up to 4 images</div>
+    </div>
+    <div class="img-list" id="imgList"></div>
+  </div>
+
+  <!-- Merge Style -->
+  <div class="panel-section">
+    <div class="panel-label">Merge Style</div>
+    <div class="blend-grid" id="blendGrid">
+      <button class="blend-btn active" data-i="0" onclick="selectBlend(0)">Gaussian Split</button>
+      <button class="blend-btn" data-i="1" onclick="selectBlend(1)">Radial Vignette</button>
+      <button class="blend-btn" data-i="2" onclick="selectBlend(2)">Diagonal Sweep</button>
+      <button class="blend-btn" data-i="3" onclick="selectBlend(3)">Center Focus</button>
+    </div>
+  </div>
+
+  <!-- Adjustments -->
+  <div class="panel-section">
+    <div class="panel-label">Adjustments</div>
+    <div class="slider-group">
+      <div class="slider-row"><label>Blur</label><input type="range" min="0" max="50" value="18" id="blurSlider" oninput="onSlider('blur',this.value)"><span class="slider-val" id="blurVal">18</span><button class="slider-reset" onclick="resetSlider('blur',18)">↺</button></div>
+      <div class="slider-row"><label>Blend</label><input type="range" min="0" max="100" value="60" id="blendSlider" oninput="onSlider('blend',this.value)"><span class="slider-val" id="blendVal">60</span><button class="slider-reset" onclick="resetSlider('blend',60)">↺</button></div>
+      <div class="slider-row"><label>Dim</label><input type="range" min="0" max="90" value="20" id="dimSlider" oninput="onSlider('dim',this.value)"><span class="slider-val" id="dimVal">20</span><button class="slider-reset" onclick="resetSlider('dim',20)">↺</button></div>
+      <div class="slider-row"><label>Bright</label><input type="range" min="30" max="200" value="100" id="brightSlider" oninput="onSlider('bright',this.value)"><span class="slider-val" id="brightVal">100</span><button class="slider-reset" onclick="resetSlider('bright',100)">↺</button></div>
+      <div class="slider-row"><label>Contrast</label><input type="range" min="30" max="220" value="100" id="contrastSlider" oninput="onSlider('contrast',this.value)"><span class="slider-val" id="contrastVal">100</span><button class="slider-reset" onclick="resetSlider('contrast',100)">↺</button></div>
+      <div class="slider-row"><label>Saturation</label><input type="range" min="0" max="300" value="100" id="saturSlider" oninput="onSlider('satur',this.value)"><span class="slider-val" id="saturVal">100</span><button class="slider-reset" onclick="resetSlider('satur',100)">↺</button></div>
+      <div class="slider-row"><label>Warmth</label><input type="range" min="-50" max="50" value="0" id="warmthSlider" oninput="onSlider('warmth',this.value)"><span class="slider-val" id="warmthVal">0</span><button class="slider-reset" onclick="resetSlider('warmth',0)">↺</button></div>
+    </div>
+  </div>
+
+  <!-- Color Overlay -->
+  <div class="panel-section">
+    <div class="panel-label">Color Overlay</div>
+    <div class="overlay-grid" id="overlayGrid">
+      <button class="overlay-btn active" onclick="setOverlay('none',this)">None</button>
+      <button class="overlay-btn" onclick="setOverlay('dark',this)">Dark Film</button>
+      <button class="overlay-btn" onclick="setOverlay('golden',this)">Golden Hour</button>
+      <button class="overlay-btn" onclick="setOverlay('blue',this)">Cold Blue</button>
+      <button class="overlay-btn" onclick="setOverlay('red',this)">Red Heat</button>
+      <button class="overlay-btn" onclick="setOverlay('matrix',this)">Matrix</button>
+      <button class="overlay-btn" onclick="setOverlay('purple',this)">Purple Haze</button>
+      <button class="overlay-btn" onclick="setOverlay('sepia',this)">Vintage Sepia</button>
+      <button class="overlay-btn" onclick="setOverlay('teal',this)">Teal &amp; Orange</button>
+    </div>
+  </div>
+
+</aside>
+
+<!-- ═══ CANVAS ═══ -->
+<main class="canvas-area" id="canvasArea">
+  <div class="canvas-container" id="canvasContainer">
+    <canvas id="mainCanvas"></canvas>
+    <div class="text-layer" id="textLayer"></div>
+  </div>
+  <div class="empty-state" id="emptyState">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+    Upload images from the left panel<br>or drag &amp; drop them here
+  </div>
+  <div class="canvas-badge" id="canvasBadge">YouTube — 1280 × 720 px</div>
+  <div class="zoom-badge" id="zoomBadge">52%</div>
+</main>
+
+<!-- ═══ RIGHT PANEL ═══ -->
+<aside class="right-panel">
+
+  <!-- Language -->
+  <div class="panel-section">
+    <div class="panel-label">Language</div>
+    <div class="lang-row">
+      <button class="lang-pill active" id="langEn" onclick="setLang('en')">🇬🇧 English</button>
+      <button class="lang-pill" id="langOr" onclick="setLang('or')">🇮🇳 Odia</button>
+      <button class="odia-trigger-btn" id="odiaHelpBtn" style="display:none" onclick="openOdiaPopup()">Convert ✦</button>
+    </div>
+
+    <div class="panel-label">Add Text</div>
+    <textarea class="text-area-input" id="textInput" placeholder="Type your thumbnail title..." rows="3"></textarea>
+  </div>
+
+  <!-- Text Styling -->
+  <div class="panel-section" style="display:flex;flex-direction:column;gap:10px;">
+
+    <div>
+      <div class="panel-label">Font</div>
+      <select class="font-select" id="fontSel" onchange="onFontChange()">
+        <option value="'Bebas Neue',sans-serif">Bebas Neue (Display)</option>
+        <option value="Impact,sans-serif">Impact (Bold)</option>
+        <option value="'Arial Black',sans-serif">Arial Black</option>
+        <option value="Georgia,serif">Georgia Serif</option>
+        <option value="'Times New Roman',serif">Times New Roman</option>
+        <option value="'Courier New',monospace">Courier New</option>
+        <option value="Verdana,sans-serif">Verdana</option>
+        <option value="Tahoma,sans-serif">Tahoma</option>
+        <option value="'Noto Sans Odia','Nirmala UI','Kalinga',sans-serif">🇮🇳 Noto Sans Odia</option>
+      </select>
+    </div>
+
+    <div class="slider-group">
+      <div class="slider-row"><label>Size</label><input type="range" min="10" max="240" value="80" id="fontSizeSlider" oninput="document.getElementById('fontSizeVal').textContent=this.value"><span class="slider-val" id="fontSizeVal">80</span></div>
+      <div class="slider-row"><label>Opacity</label><input type="range" min="5" max="100" value="100" id="textOpacSlider" oninput="document.getElementById('textOpacVal').textContent=this.value"><span class="slider-val" id="textOpacVal">100</span></div>
+      <div class="slider-row"><label>Spacing</label><input type="range" min="-5" max="30" value="0" id="letterSpaceSlider" oninput="document.getElementById('lsVal').textContent=this.value"><span class="slider-val" id="lsVal">0</span></div>
+      <div class="slider-row"><label>Line H.</label><input type="range" min="80" max="200" value="115" id="lineHSlider" oninput="document.getElementById('lhVal').textContent=this.value"><span class="slider-val" id="lhVal">115</span></div>
+    </div>
+
+    <div>
+      <div class="panel-label">Text Color</div>
+      <div class="color-palette">
+        <div class="color-dot active" style="background:#ffffff" data-c="#ffffff" onclick="pickColor(this)"></div>
+        <div class="color-dot" style="background:#ff3b3b" data-c="#ff3b3b" onclick="pickColor(this)"></div>
+        <div class="color-dot" style="background:#ff8800" data-c="#ff8800" onclick="pickColor(this)"></div>
+        <div class="color-dot" style="background:#ffdd00" data-c="#ffdd00" onclick="pickColor(this)"></div>
+        <div class="color-dot" style="background:#00e676" data-c="#00e676" onclick="pickColor(this)"></div>
+        <div class="color-dot" style="background:#29b6f6" data-c="#29b6f6" onclick="pickColor(this)"></div>
+        <div class="color-dot" style="background:#ce93d8" data-c="#ce93d8" onclick="pickColor(this)"></div>
+        <div class="color-dot" style="background:#000000" data-c="#000000" onclick="pickColor(this)"></div>
+        <div class="color-picker-wrap" title="Custom color">
+          <input type="color" id="customColor" value="#ffffff" onchange="customColor(this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-label">Style</div>
+      <div class="style-toggles">
+        <button class="style-toggle" id="tBold" onclick="toggleStyle('bold')" title="Bold">B</button>
+        <button class="style-toggle" id="tItalic" onclick="toggleStyle('italic')" style="font-style:italic" title="Italic">I</button>
+        <button class="style-toggle" id="tUpper" onclick="toggleStyle('upper')" title="Uppercase">AA</button>
+        <button class="style-toggle active" id="tShadow" onclick="toggleStyle('shadow')" title="Shadow">Sh</button>
+        <button class="style-toggle" id="tStroke" onclick="toggleStyle('stroke')" title="Outline">St</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-label">Text Effect</div>
+      <select class="effect-select" id="textEffect">
+        <option value="none">None</option>
+        <option value="glow-red">Glow Red</option>
+        <option value="glow-white">Glow White</option>
+        <option value="glow-gold">Glow Gold</option>
+        <option value="neon-blue">Neon Blue</option>
+        <option value="fire">Fire Shadow</option>
+        <option value="emboss">Emboss</option>
+      </select>
+    </div>
+
+    <div>
+      <div class="panel-label">Align</div>
+      <div class="style-toggles">
+        <button class="style-toggle" id="aLeft" onclick="setAlign('left')" title="Left">⇐ Left</button>
+        <button class="style-toggle active" id="aCenter" onclick="setAlign('center')" title="Center">≡ Center</button>
+        <button class="style-toggle" id="aRight" onclick="setAlign('right')" title="Right">Right ⇒</button>
+      </div>
+    </div>
+
+    <button class="add-text-btn" onclick="addText()">＋ Place Text on Canvas</button>
+  </div>
+
+  <!-- Text Layers -->
+  <div class="panel-section" style="flex:1;">
+    <div class="panel-label">Text Layers</div>
+    <div id="layerList" style="display:flex;flex-direction:column;gap:5px;"></div>
+  </div>
+
+  <div class="action-row">
+    <button class="action-btn" onclick="clearTexts()">Clear Text</button>
+    <button class="action-btn danger" onclick="clearAll()">Reset All</button>
+  </div>
+
+</aside>
+</div>
+
+<!-- ═══ ODIA POPUP ═══ -->
+<div class="popup-overlay" id="popupOverlay" onclick="overlayClick(event)">
+  <div class="odia-popup" id="odiaPopup">
+    <div class="popup-header">
+      <div class="popup-title"><span>🇮🇳</span> Odia Text Input</div>
+      <button class="popup-close" onclick="closeOdiaPopup()">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="popup-info">
+        <strong>How to use:</strong> Click <strong>"Open Google Input"</strong> → type in Odia → copy the text → paste it below.
+        <br><br>
+        Or directly paste Odia Unicode text below.
+      </div>
+      <textarea class="odia-paste-area" id="odiaBox" placeholder="ଓଡ଼ିଆ ପାଠ୍ୟ ଏଠାରେ ଲେଖନ୍ତୁ...&#10;(Paste your Odia text here)"></textarea>
+      <div class="popup-actions">
+        <button class="popup-open-btn" onclick="window.open('https://www.google.com/inputtools/try/','_blank')">🌐 Open Google Input</button>
+        <button class="popup-use-btn" onclick="useOdiaText()">✔ Use Text</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════ STATE ═══════════════════════════════
+const VIEWS = {
+  yt:    { w:1280, h:720,  label:'YouTube — 1280 × 720 px',      scale:0.52, zoom:'52%' },
+  short: { w:1080, h:1920, label:'Short/Reels — 1080 × 1920 px', scale:0.28, zoom:'28%' },
+  sq:    { w:1080, h:1080, label:'Square — 1080 × 1080 px',       scale:0.44, zoom:'44%' }
+};
+
+let currentView = 'yt';
+let images = [];
+let blendIdx = 0;
+let settings = { blur:18, blend:60, dim:20, bright:100, contrast:100, satur:100, warmth:0 };
+let overlay = 'none';
+let textColor = '#ffffff';
+let textStyles = { bold:false, italic:false, upper:false, shadow:true, stroke:false };
+let textAlign = 'center';
+let layerCount = 0;
+let currentLang = 'en';
+
+const canvas = document.getElementById('mainCanvas');
+const ctx    = canvas.getContext('2d');
+const textLayer = document.getElementById('textLayer');
+
+// ── INIT ──
+function init() {
+  setCanvasSize();
+  setupDragDrop();
+  render();
+}
+
+function setCanvasSize() {
+  const v = VIEWS[currentView];
+  const s = v.scale;
+  canvas.width  = v.w;
+  canvas.height = v.h;
+  canvas.style.width  = Math.round(v.w * s) + 'px';
+  canvas.style.height = Math.round(v.h * s) + 'px';
+  const cc = document.getElementById('canvasContainer');
+  cc.style.width  = Math.round(v.w * s) + 'px';
+  cc.style.height = Math.round(v.h * s) + 'px';
+  textLayer.style.width  = Math.round(v.w * s) + 'px';
+  textLayer.style.height = Math.round(v.h * s) + 'px';
+  document.getElementById('canvasBadge').textContent = v.label;
+  document.getElementById('zoomBadge').textContent = v.zoom;
+  rescaleTexts();
+}
+
+function switchView(v) {
+  currentView = v;
+  document.querySelectorAll('.view-pill').forEach(p => p.classList.toggle('active', p.dataset.view === v));
+  setCanvasSize();
+  render();
+}
+
+// ── LANGUAGE ──
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('langEn').classList.toggle('active', lang === 'en');
+  document.getElementById('langOr').classList.toggle('active', lang === 'or');
+  document.getElementById('odiaHelpBtn').style.display = lang === 'or' ? 'block' : 'none';
+  const ta = document.getElementById('textInput');
+  ta.classList.toggle('odia-mode', lang === 'or');
+  if (lang === 'or') {
+    ta.placeholder = 'ଓଡ଼ିଆ ଲେଖନ୍ତୁ... (Type or paste Odia)';
+    openOdiaPopup();
+  } else {
+    ta.placeholder = 'Type your thumbnail title...';
+  }
+}
+
+// ── ODIA POPUP ──
+function openOdiaPopup() {
+  document.getElementById('popupOverlay').classList.add('open');
+}
+function closeOdiaPopup() {
+  document.getElementById('popupOverlay').classList.remove('open');
+}
+function overlayClick(e) {
+  if (e.target === document.getElementById('popupOverlay')) closeOdiaPopup();
+}
+function useOdiaText() {
+  const text = document.getElementById('odiaBox').value.trim();
+  if (!text) { showToast('Please paste Odia text first', 'error'); return; }
+  document.getElementById('textInput').value = text;
+  // auto-select Odia font
+  const fs = document.getElementById('fontSel');
+  fs.value = "'Noto Sans Odia','Nirmala UI','Kalinga',sans-serif";
+  closeOdiaPopup();
+  showToast('Odia text ready! Click "Place Text on Canvas"', 'success');
+}
+
+// ── FILE HANDLING ──
+function handleFiles(e) {
+  const files = [...e.target.files];
+  let added = 0;
+  files.forEach(f => {
+    if (images.length >= 4) return;
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = () => {
+      images.push({ img, url, name: f.name });
+      updateImageList();
+      updateBlendLabels();
+      render();
+      added++;
+    };
+    img.onerror = () => showToast('Failed to load: ' + f.name, 'error');
+    img.src = url;
+  });
+  e.target.value = '';
+}
+
+function updateImageList() {
+  const list = document.getElementById('imgList');
+  list.innerHTML = '';
+  images.forEach((im, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'img-chip';
+    chip.innerHTML = `
+      <div class="img-order-badge">${i+1}</div>
+      <img src="${im.url}" alt="">
+      <span class="img-chip-name">${im.name}</span>
+      <div class="img-chip-btns">
+        ${i>0?`<button class="img-chip-btn" onclick="moveImg(${i},-1)" title="Move up">↑</button>`:''}
+        ${i<images.length-1?`<button class="img-chip-btn" onclick="moveImg(${i},1)" title="Move down">↓</button>`:''}
+        <button class="img-chip-btn" onclick="removeImg(${i})" title="Remove">✕</button>
+      </div>`;
+    list.appendChild(chip);
+  });
+  document.getElementById('emptyState').style.display = images.length ? 'none' : 'flex';
+}
+
+function moveImg(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= images.length) return;
+  [images[i], images[j]] = [images[j], images[i]];
+  updateImageList(); render();
+}
+
+function removeImg(i) {
+  URL.revokeObjectURL(images[i].url);
+  images.splice(i, 1);
+  updateImageList(); updateBlendLabels(); render();
+}
+
+function setupDragDrop() {
+  const area = document.getElementById('canvasArea');
+  const zone = document.getElementById('uploadZone');
+
+  [area, zone].forEach(el => {
+    el.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); el.classList.add('drag-active'); });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-active'));
+    el.addEventListener('drop', e => {
+      e.preventDefault(); el.classList.remove('drag-active');
+      const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+      if (!files.length) return;
+      files.forEach(f => {
+        if (images.length >= 4) return;
+        const url = URL.createObjectURL(f);
+        const img = new Image();
+        img.onload = () => { images.push({ img, url, name: f.name }); updateImageList(); updateBlendLabels(); render(); };
+        img.src = url;
+      });
+    });
+  });
+}
+
+// ── BLEND ──
+const BLEND_LABELS = [
+  ['Full Blur',     'Gaussian Split', 'Tri-Zone Split', 'Quad Grid'   ],
+  ['Radial Glow',   'Radial Vignette','Radial Tri',     'Radial Quad' ],
+  ['Diagonal Fade', 'Diagonal Sweep', 'Fan Sweep',      'Pinwheel'    ],
+  ['Dark Focus',    'Center Focus',   'Triple Focus',   'Corner Focus']
+];
+
+function updateBlendLabels() {
+  const n = Math.max(1, images.length) - 1;
+  document.querySelectorAll('.blend-btn').forEach((b, i) => { b.textContent = BLEND_LABELS[i][n]; });
+}
+
+function selectBlend(i) {
+  blendIdx = i;
+  document.querySelectorAll('.blend-btn').forEach((b, j) => b.classList.toggle('active', i === j));
+  render();
+}
+
+// ── SLIDERS ──
+function onSlider(key, val) {
+  settings[key] = +val;
+  document.getElementById(key + 'Val').textContent = val;
+  render();
+}
+function resetSlider(key, def) {
+  settings[key] = def;
+  document.getElementById(key + 'Slider').value = def;
+  document.getElementById(key + 'Val').textContent = def;
+  render();
+}
+
+// ── OVERLAY ──
+function setOverlay(ov, btn) {
+  overlay = ov;
+  document.querySelectorAll('.overlay-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ── RENDER ──
+function drawCover(img, x, y, w, h) {
+  const ir = img.width / img.height, cr = w / h;
+  let sx, sy, sw, sh;
+  if (ir > cr) { sw = img.height * cr; sh = img.height; sx = (img.width - sw) / 2; sy = 0; }
+  else         { sw = img.width; sh = img.width / cr; sx = 0; sy = (img.height - sh) / 2; }
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+
+function render() {
+  const { w, h } = VIEWS[currentView];
+  const B = settings.blend / 100;
+  const blur = settings.blur;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
+  if (!images.length) return;
+
+  // Build filter string
+  let filterStr = `brightness(${settings.bright}%) contrast(${settings.contrast}%) saturate(${settings.satur}%)`;
+  if (settings.warmth !== 0) { /* applied via overlay below */ }
+  ctx.filter = filterStr;
+
+  const n = images.length;
+  if (n === 1) draw1(images[0].img, w, h, blur, B);
+  else if (n === 2) draw2(w, h, blur, B);
+  else if (n === 3) draw3(w, h, blur, B);
+  else              draw4(w, h, blur, B);
+
+  ctx.filter = 'none';
+
+  // Warmth overlay
+  if (settings.warmth !== 0) {
+    const wv = settings.warmth / 50;
+    if (wv > 0) { ctx.fillStyle = `rgba(255,140,0,${wv * 0.25})`; }
+    else        { ctx.fillStyle = `rgba(0,100,200,${Math.abs(wv) * 0.25})`; }
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  // Dim
+  if (settings.dim > 0) {
+    ctx.fillStyle = `rgba(0,0,0,${settings.dim / 100})`;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  applyOverlay(w, h);
+}
+
+function applyOverlay(w, h) {
+  const map = {
+    dark:   'rgba(0,0,20,0.38)',
+    golden: 'rgba(255,160,0,0.22)',
+    blue:   'rgba(0,70,180,0.28)',
+    red:    'rgba(180,0,0,0.25)',
+    matrix: 'rgba(0,110,20,0.3)',
+    purple: 'rgba(100,0,180,0.28)',
+    sepia:  'rgba(120,80,30,0.3)',
+    teal:   null,
+  };
+  if (overlay === 'teal') {
+    // Teal & Orange split
+    const g = ctx.createLinearGradient(0, 0, w, 0);
+    g.addColorStop(0, 'rgba(0,120,120,0.25)');
+    g.addColorStop(1, 'rgba(200,80,0,0.2)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  } else if (map[overlay]) {
+    ctx.fillStyle = map[overlay]; ctx.fillRect(0, 0, w, h);
+  }
+}
+
+// ── 1 IMAGE ──
+function draw1(img, w, h, blur, B) {
+  drawCover(img, 0, 0, w, h);
+  if (blendIdx === 0) {
+    const blurred = makeBlurCanvas(canvas, blur);
+    ctx.drawImage(blurred, 0, 0);
+    const g = ctx.createRadialGradient(w/2, h/2, h*0.15, w/2, h/2, h*0.9);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${B})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    drawCover(img, w*0.15, h*0.08, w*0.7, h*0.84);
+    const g2 = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, h*0.46);
+    g2.addColorStop(0.5, 'rgba(0,0,0,0)'); g2.addColorStop(1, `rgba(0,0,0,${B*0.7})`);
+    ctx.fillStyle = g2; ctx.fillRect(0, 0, w, h);
+  } else if (blendIdx === 1) {
+    const g = ctx.createRadialGradient(w/2, h/2, h*0.18, w/2, h/2, h*0.95);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${B})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  } else if (blendIdx === 2) {
+    const g = ctx.createLinearGradient(0, 0, w, h);
+    g.addColorStop(0, `rgba(0,0,0,${B})`); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${B})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  } else {
+    ctx.fillStyle = `rgba(0,0,0,${B*0.35})`; ctx.fillRect(0, 0, w, h);
+    const g = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, h*0.33);
+    g.addColorStop(0, 'rgba(255,255,255,0.07)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  }
+}
+
+// ── 2 IMAGES ──
+function draw2(w, h, blur, B) {
+  const [a, b] = images;
+  if (blendIdx === 0) {
+    drawCover(a.img, 0, 0, w/2, h); drawCover(b.img, w/2, 0, w/2, h);
+    const g = ctx.createLinearGradient(w*0.34, 0, w*0.66, 0);
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.5,`rgba(0,0,0,${B})`); g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  } else if (blendIdx === 1) {
+    drawCover(a.img, 0, 0, w, h);
+    const g = ctx.createRadialGradient(w/2,h/2,h*0.18,w/2,h/2,h*0.95);
+    g.addColorStop(0,`rgba(0,0,0,${B})`); g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    drawCover(b.img, w*0.22, h*0.08, w*0.56, h*0.84);
+    const g2 = ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,h*0.44);
+    g2.addColorStop(0.55,'rgba(0,0,0,0)'); g2.addColorStop(1,`rgba(0,0,0,${B})`);
+    ctx.fillStyle=g2; ctx.fillRect(0,0,w,h);
+  } else if (blendIdx === 2) {
+    ctx.save(); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w*0.56,0); ctx.lineTo(w*0.44,h); ctx.lineTo(0,h); ctx.closePath(); ctx.clip();
+    drawCover(a.img,0,0,w,h); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.moveTo(w*0.56,0); ctx.lineTo(w,0); ctx.lineTo(w,h); ctx.lineTo(w*0.44,h); ctx.closePath(); ctx.clip();
+    drawCover(b.img,0,0,w,h); ctx.restore();
+    const g=ctx.createLinearGradient(w*0.36,0,w*0.64,0);
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.5,`rgba(0,0,0,${B})`); g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  } else {
+    drawCover(a.img,0,0,w,h);
+    ctx.globalAlpha=B; drawCover(b.img,0,0,w,h); ctx.globalAlpha=1;
+    const g=ctx.createRadialGradient(w/2,h/2,h*0.18,w/2,h/2,h*0.62);
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,`rgba(0,0,0,${B})`);
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  }
+}
+
+// ── 3 IMAGES ──
+function draw3(w, h, blur, B) {
+  const [a, b, c] = images;
+  if (blendIdx === 0) {
+    drawCover(a.img,0,0,w/3,h); drawCover(b.img,w/3,0,w/3,h); drawCover(c.img,w*2/3,0,w/3,h);
+    [[w*0.24,w*0.43],[w*0.57,w*0.76]].forEach(([s,e]) => {
+      const g=ctx.createLinearGradient(s,0,e,0);
+      g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.5,`rgba(0,0,0,${B})`); g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    });
+  } else if (blendIdx === 1) {
+    const cx=w/2,cy=h/2,r=Math.max(w,h);
+    [a,b,c].forEach((im,i) => {
+      ctx.save(); ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,(Math.PI*2*i/3)-Math.PI/2,(Math.PI*2*(i+1)/3)-Math.PI/2);
+      ctx.closePath(); ctx.clip(); drawCover(im.img,0,0,w,h); ctx.restore();
+    });
+    const g=ctx.createRadialGradient(cx,cy,Math.min(w,h)*0.25,cx,cy,Math.min(w,h)*0.52);
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,`rgba(0,0,0,${B})`);
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  } else if (blendIdx === 2) {
+    [0,1,2].forEach(i => {
+      ctx.save();
+      if(i===0){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(w*0.42,0);ctx.lineTo(w*0.32,h);ctx.lineTo(0,h);ctx.closePath();}
+      else if(i===1){ctx.beginPath();ctx.moveTo(w*0.42,0);ctx.lineTo(w*0.72,0);ctx.lineTo(w*0.62,h);ctx.lineTo(w*0.32,h);ctx.closePath();}
+      else{ctx.beginPath();ctx.moveTo(w*0.72,0);ctx.lineTo(w,0);ctx.lineTo(w,h);ctx.lineTo(w*0.62,h);ctx.closePath();}
+      ctx.clip(); drawCover([a,b,c][i].img,0,0,w,h); ctx.restore();
+    });
+    [[w*0.32,w*0.42],[w*0.62,w*0.72]].forEach(([s,e]) => {
+      const g=ctx.createLinearGradient(s-20,0,e+20,0);
+      g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.5,`rgba(0,0,0,${B})`); g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    });
+  } else {
+    drawCover(a.img,0,0,w,h*0.5); drawCover(b.img,0,h*0.5,w*0.5,h*0.5); drawCover(c.img,w*0.5,h*0.5,w*0.5,h*0.5);
+    const hg=ctx.createLinearGradient(0,h*0.44,0,h*0.56);
+    hg.addColorStop(0,'rgba(0,0,0,0)'); hg.addColorStop(0.5,`rgba(0,0,0,${B})`); hg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=hg; ctx.fillRect(0,0,w,h);
+    const vg=ctx.createLinearGradient(w*0.45,0,w*0.55,0);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(0.5,`rgba(0,0,0,${B*0.7})`); vg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=vg; ctx.fillRect(0,h*0.5,w,h*0.5);
+  }
+}
+
+// ── 4 IMAGES ──
+function draw4(w, h, blur, B) {
+  const [a,b,c,d] = images;
+  if (blendIdx === 0) {
+    drawCover(a.img,0,0,w/2,h/2); drawCover(b.img,w/2,0,w/2,h/2);
+    drawCover(c.img,0,h/2,w/2,h/2); drawCover(d.img,w/2,h/2,w/2,h/2);
+    const hg=ctx.createLinearGradient(0,h*0.44,0,h*0.56);
+    hg.addColorStop(0,'rgba(0,0,0,0)'); hg.addColorStop(0.5,`rgba(0,0,0,${B})`); hg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=hg; ctx.fillRect(0,0,w,h);
+    const vg=ctx.createLinearGradient(w*0.44,0,w*0.56,0);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(0.5,`rgba(0,0,0,${B})`); vg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=vg; ctx.fillRect(0,0,w,h);
+  } else if (blendIdx === 1) {
+    const cx=w/2,cy=h/2,r=Math.max(w,h);
+    [a,b,c,d].forEach((im,i) => {
+      ctx.save(); ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,Math.PI*i/2-Math.PI/2,Math.PI*(i+1)/2-Math.PI/2);
+      ctx.closePath(); ctx.clip(); drawCover(im.img,0,0,w,h); ctx.restore();
+    });
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.min(w,h)*0.1);
+    g.addColorStop(0,`rgba(0,0,0,${B})`); g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  } else if (blendIdx === 2) {
+    [[0,w*0.28,0,w*0.18],[w*0.28,w*0.55,w*0.18,w*0.45],[w*0.55,w*0.8,w*0.45,w*0.72],[w*0.8,w,w*0.72,w]].forEach(([tl,tr,bl,br],i) => {
+      ctx.save(); ctx.beginPath(); ctx.moveTo(tl,0); ctx.lineTo(tr,0); ctx.lineTo(br,h); ctx.lineTo(bl,h); ctx.closePath(); ctx.clip();
+      drawCover([a,b,c,d][i].img,0,0,w,h); ctx.restore();
+    });
+    [[w*0.18,w*0.28],[w*0.45,w*0.55],[w*0.72,w*0.8]].forEach(([s,e]) => {
+      const g=ctx.createLinearGradient(s,0,e,0);
+      g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.5,`rgba(0,0,0,${B})`); g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    });
+  } else {
+    drawCover(a.img,0,0,w/2,h/2); drawCover(b.img,w/2,0,w/2,h/2);
+    drawCover(c.img,0,h/2,w/2,h/2); drawCover(d.img,w/2,h/2,w/2,h/2);
+    const cg=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.min(w,h)*0.32);
+    cg.addColorStop(0,`rgba(0,0,0,${B})`); cg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=cg; ctx.fillRect(0,0,w,h);
+    const eg=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.28,w/2,h/2,Math.min(w,h)*0.54);
+    eg.addColorStop(0,'rgba(0,0,0,0)'); eg.addColorStop(1,`rgba(0,0,0,${B*0.8})`);
+    ctx.fillStyle=eg; ctx.fillRect(0,0,w,h);
+  }
+}
+
+function makeBlurCanvas(src, radius) {
+  if (radius <= 0) return src;
+  const oc = document.createElement('canvas'); oc.width = canvas.width; oc.height = canvas.height;
+  const c = oc.getContext('2d'); c.filter = `blur(${radius}px)`; c.drawImage(src, 0, 0);
+  return oc;
+}
+
+// ── TEXT ──
+function pickColor(el) {
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active'); textColor = el.dataset.c;
+}
+function customColor(v) {
+  textColor = v; document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+}
+function toggleStyle(s) {
+  textStyles[s] = !textStyles[s];
+  document.getElementById('t' + s.charAt(0).toUpperCase() + s.slice(1)).classList.toggle('active', textStyles[s]);
+}
+function setAlign(a) {
+  textAlign = a;
+  ['Left','Center','Right'].forEach(d => document.getElementById('a'+d).classList.toggle('active', d.toLowerCase()===a));
+}
+function onFontChange() { /* nothing needed */ }
+
+function getTextShadow(effect) {
+  const effects = {
+    'none':       textStyles.shadow ? '2px 2px 16px rgba(0,0,0,1),0 0 30px rgba(0,0,0,0.9)' : 'none',
+    'glow-red':   '0 0 10px #ff3b3b, 0 0 30px #ff3b3b, 0 0 60px #ff000088',
+    'glow-white': '0 0 10px #fff, 0 0 30px #fff, 0 0 60px rgba(255,255,255,.5)',
+    'glow-gold':  '0 0 10px #ffd700, 0 0 30px #ffa500, 0 0 60px #ff8c0088',
+    'neon-blue':  '0 0 8px #00eaff, 0 0 24px #00b4ff, 0 0 50px #0080ff88',
+    'fire':       '2px 2px 4px #000, 0 0 10px #ff8800, 0 0 30px #ff4400, 0 0 60px #ff000066',
+    'emboss':     '1px 1px 0 rgba(255,255,255,.15), -1px -1px 0 rgba(0,0,0,.5), 2px 2px 8px rgba(0,0,0,.8)',
+  };
+  return effects[effect] || effects['none'];
+}
+
+async function addText() {
+  await document.fonts.ready;
+  const raw = document.getElementById('textInput').value.trim();
+  if (!raw) { showToast('Please enter some text first', 'error'); return; }
+
+  const text   = textStyles.upper ? raw.toUpperCase() : raw;
+  const font   = document.getElementById('fontSel').value;
+  const size   = +document.getElementById('fontSizeSlider').value;
+  const opac   = +document.getElementById('textOpacSlider').value;
+  const ls     = +document.getElementById('letterSpaceSlider').value;
+  const lh     = +document.getElementById('lineHSlider').value;
+  const effect = document.getElementById('textEffect').value;
+  const scale  = VIEWS[currentView].scale;
+  const id     = 'text_' + (++layerCount);
+  const isOdia = font.includes('Odia') || font.includes('Nirmala') || font.includes('Kalinga');
+
+  const el = document.createElement('div');
+  el.id = id;
+  el.className = 'draggable-text';
+  if (isOdia) el.style.fontFamily = "'Noto Sans Odia','Nirmala UI','Kalinga',sans-serif";
+  else el.style.fontFamily = font;
+  el.style.fontSize      = (size * scale) + 'px';
+  el.style.color         = textColor;
+  el.style.opacity       = opac / 100;
+  el.style.fontWeight    = textStyles.bold ? '700' : '400';
+  el.style.fontStyle     = textStyles.italic ? 'italic' : 'normal';
+  el.style.textAlign     = textAlign;
+  el.style.letterSpacing = ls + 'px';
+  el.style.lineHeight    = (lh / 100);
+  el.style.textShadow    = getTextShadow(effect);
+  el.style.webkitTextStroke = textStyles.stroke ? '2px rgba(0,0,0,0.85)' : '';
+  el.style.whiteSpace    = 'pre-wrap';
+  el.style.maxWidth      = Math.round(VIEWS[currentView].w * 0.85 * scale) + 'px';
+  el.style.left = '50%'; el.style.top = '50%';
+  el.style.transform = 'translate(-50%,-50%)';
+
+  // Store data
+  Object.assign(el.dataset, { raw, font, size, color: textColor, opac, ls, lh,
+    bold: textStyles.bold, italic: textStyles.italic, upper: textStyles.upper,
+    shadow: textStyles.shadow, stroke: textStyles.stroke, align: textAlign, effect,
+    px: VIEWS[currentView].w / 2, py: VIEWS[currentView].h / 2 });
+
+  el.appendChild(document.createTextNode(text));
+
+  const del = document.createElement('button');
+  del.className = 'del-btn'; del.textContent = '✕';
+  del.onclick = e => { e.stopPropagation(); el.remove(); removeLayer(id); };
+  el.appendChild(del);
+
+  makeDraggable(el);
+  textLayer.appendChild(el);
+  addLayer(id, text.slice(0, 16) || 'Text', textColor);
+  document.getElementById('textInput').value = '';
+  showToast('Text added — drag to reposition');
+}
+
+function makeDraggable(el) {
+  let ox, oy, startX, startY, dragging = false;
+
+  el.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('del-btn')) return;
+    e.preventDefault(); dragging = true;
+    startX = e.clientX; startY = e.clientY;
+    ox = +el.dataset.px; oy = +el.dataset.py;
+    el.style.transform = '';
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const s = VIEWS[currentView].scale;
+    el.dataset.px = ox + (e.clientX - startX) / s;
+    el.dataset.py = oy + (e.clientY - startY) / s;
+    el.style.left = (+el.dataset.px * s) + 'px';
+    el.style.top  = (+el.dataset.py * s) + 'px';
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+
+  el.addEventListener('touchstart', e => {
+    if (e.target.classList.contains('del-btn')) return;
+    const t = e.touches[0]; dragging = true;
+    startX = t.clientX; startY = t.clientY;
+    ox = +el.dataset.px; oy = +el.dataset.py;
+    el.style.transform = '';
+  }, { passive: true });
+  window.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = e.touches[0], s = VIEWS[currentView].scale;
+    el.dataset.px = ox + (t.clientX - startX) / s;
+    el.dataset.py = oy + (t.clientY - startY) / s;
+    el.style.left = (+el.dataset.px * s) + 'px';
+    el.style.top  = (+el.dataset.py * s) + 'px';
+  }, { passive: true });
+  window.addEventListener('touchend', () => { dragging = false; });
+}
+
+function rescaleTexts() {
+  const s = VIEWS[currentView].scale;
+  document.querySelectorAll('.draggable-text').forEach(el => {
+    el.style.fontSize = (+el.dataset.size * s) + 'px';
+    el.style.left = (+el.dataset.px * s) + 'px';
+    el.style.top  = (+el.dataset.py * s) + 'px';
+    el.style.transform = '';
+    el.style.maxWidth = Math.round(VIEWS[currentView].w * 0.85 * s) + 'px';
+  });
+}
+
+// ── LAYERS ──
+function addLayer(id, name, color) {
+  const list = document.getElementById('layerList');
+  const item = document.createElement('div');
+  item.id = 'layer_' + id; item.className = 'layer-item';
+  item.innerHTML = `
+    <div class="layer-dot" style="background:${color}"></div>
+    <span class="layer-name">T: ${name}</span>
+    <button class="layer-vis-btn" onclick="toggleLayerVis('${id}',this)" title="Hide/Show">👁</button>
+    <button class="layer-del-btn" onclick="document.getElementById('${id}').remove();this.closest('.layer-item').remove()" title="Delete">✕</button>`;
+  list.appendChild(item);
+}
+function removeLayer(id) {
+  const item = document.getElementById('layer_' + id);
+  if (item) item.remove();
+}
+function toggleLayerVis(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const hidden = el.style.visibility === 'hidden';
+  el.style.visibility = hidden ? 'visible' : 'hidden';
+  btn.style.opacity = hidden ? '1' : '0.3';
+}
+
+function clearTexts() {
+  document.querySelectorAll('.draggable-text').forEach(e => e.remove());
+  document.getElementById('layerList').innerHTML = '';
+}
+function clearAll() {
+  images.forEach(im => URL.revokeObjectURL(im.url));
+  images = []; clearTexts(); updateImageList(); render();
+}
+
+// ── HISTORY (simple) ──
+let history = [], histIdx = -1;
+function histSave() {
+  // placeholder — implement state snapshots if needed
+}
+function histUndo() { showToast('Undo: Remove the last text layer', ''); }
+function histRedo() { showToast('Redo', ''); }
+
+// ── EXPORT ──
+function exportPNG() {
+  const v = VIEWS[currentView];
+  const exp = document.createElement('canvas'); exp.width = v.w; exp.height = v.h;
+  const ec  = exp.getContext('2d');
+  ec.drawImage(canvas, 0, 0);
+
+  document.querySelectorAll('.draggable-text').forEach(el => {
+    if (el.style.visibility === 'hidden') return;
+    const text   = el.dataset.upper === 'true' ? el.dataset.raw.toUpperCase() : el.dataset.raw;
+    const size   = +el.dataset.size;
+    const px     = +el.dataset.px;
+    const py     = +el.dataset.py;
+    const bold   = el.dataset.bold === 'true';
+    const italic = el.dataset.italic === 'true';
+    const shadow = el.dataset.shadow === 'true';
+    const stroke = el.dataset.stroke === 'true';
+    const ls     = +el.dataset.ls;
+    const lh     = +el.dataset.lh || 115;
+    const effect = el.dataset.effect || 'none';
+    const align  = el.dataset.align || 'center';
+
+    ec.save();
+    ec.globalAlpha = +el.dataset.opac / 100;
+    ec.font = `${italic?'italic ':''} ${bold?'bold ':''} ${size}px ${el.dataset.font}, 'Noto Sans Odia','Nirmala UI',sans-serif`;
+    ec.fillStyle  = el.dataset.color;
+    ec.textAlign  = align;
+    ec.letterSpacing = ls + 'px';
+
+    // Apply effect
+    if (effect === 'glow-red') { ec.shadowColor='#ff3b3b'; ec.shadowBlur=30; }
+    else if (effect === 'glow-white') { ec.shadowColor='#fff'; ec.shadowBlur=30; }
+    else if (effect === 'glow-gold') { ec.shadowColor='#ffd700'; ec.shadowBlur=30; }
+    else if (effect === 'neon-blue') { ec.shadowColor='#00eaff'; ec.shadowBlur=30; }
+    else if (effect === 'fire') { ec.shadowColor='#ff4400'; ec.shadowBlur=28; }
+    else if (shadow) { ec.shadowColor='rgba(0,0,0,1)'; ec.shadowBlur=20; ec.shadowOffsetX=2; ec.shadowOffsetY=2; }
+
+    if (stroke) { ec.strokeStyle='rgba(0,0,0,0.85)'; ec.lineWidth=size*0.045; }
+
+    // Multi-line support
+    const lines = text.split('\n');
+    const lineH = size * (lh / 100);
+    const totalH = lines.length * lineH;
+    lines.forEach((line, li) => {
+      const yPos = py + size * 0.85 + li * lineH - (totalH - lineH) / 2;
+      if (stroke) ec.strokeText(line, px, yPos);
+      ec.fillText(line, px, yPos);
+    });
+
+    ec.restore();
+  });
+
+  const a = document.createElement('a');
+  a.download = `thumbcraft_${currentView}_${Date.now()}.png`;
+  a.href = exp.toDataURL('image/png');
+  a.click();
+  showToast('Thumbnail exported successfully!', 'success');
+}
+
+async function copyToClipboard() {
+  try {
+    const v = VIEWS[currentView];
+    const exp = document.createElement('canvas'); exp.width = v.w; exp.height = v.h;
+    exp.getContext('2d').drawImage(canvas, 0, 0);
+    exp.toBlob(async blob => {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      showToast('Image copied to clipboard!', 'success');
+    });
+  } catch(e) {
+    showToast('Copy not supported in this browser', 'error');
+  }
+}
+
+// ── TOAST ──
+function showToast(msg, type='') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 2200);
+}
+
+// ── START ──
+init();
+</script>
+</body>
+</html>

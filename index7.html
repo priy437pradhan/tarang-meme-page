@@ -1,0 +1,2888 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DevRef // Project Setup Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/font/lucide.css" rel="stylesheet">
+<style>
+/* ============================================================
+   THEME TOKENS — cyberpunk cyan→magenta with proper light mode
+   ============================================================ */
+:root[data-theme="dark"] {
+  --bg-0: #07080d;
+  --bg-1: #0c0e16;
+  --bg-2: #11141f;
+  --bg-3: #161a26;
+  --bg-window: rgba(15, 17, 26, 0.78);
+  --bg-window-solid: #0f111a;
+  --bg-code: #0a0c14;
+  --bg-hover: rgba(255,255,255,0.04);
+
+  --border: rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.14);
+
+  --text-0: #f0f2f8;
+  --text-1: #c8ccd8;
+  --text-2: #8990a3;
+  --text-3: #5a6075;
+
+  --neon-cyan: #00f0ff;
+  --neon-magenta: #ff2bd6;
+  --neon-violet: #9d4dff;
+  --neon-yellow: #ffd84d;
+  --neon-green: #4dffb8;
+
+  --gradient-neon: linear-gradient(135deg, #00f0ff 0%, #9d4dff 50%, #ff2bd6 100%);
+  --gradient-neon-soft: linear-gradient(135deg, rgba(0,240,255,0.18) 0%, rgba(157,77,255,0.18) 50%, rgba(255,43,214,0.18) 100%);
+  --gradient-text: linear-gradient(135deg, #00f0ff 0%, #ff2bd6 100%);
+
+  --glow-cyan: 0 0 20px rgba(0,240,255,0.45), 0 0 40px rgba(0,240,255,0.18);
+  --glow-magenta: 0 0 20px rgba(255,43,214,0.45), 0 0 40px rgba(255,43,214,0.18);
+  --shadow-window: 0 30px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+
+  --traffic-close: #ff5f57;
+  --traffic-min: #febc2e;
+  --traffic-max: #28c840;
+}
+
+:root[data-theme="light"] {
+  --bg-0: #eef0f5;
+  --bg-1: #f6f7fb;
+  --bg-2: #ffffff;
+  --bg-3: #f1f3f9;
+  --bg-window: rgba(255,255,255,0.85);
+  --bg-window-solid: #ffffff;
+  --bg-code: #f7f8fc;
+  --bg-hover: rgba(0,0,0,0.03);
+
+  --border: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.16);
+
+  --text-0: #0a0c14;
+  --text-1: #2a2e3d;
+  --text-2: #5a6075;
+  --text-3: #8990a3;
+
+  --neon-cyan: #0099b8;
+  --neon-magenta: #c4148a;
+  --neon-violet: #7028e0;
+  --neon-yellow: #b8860b;
+  --neon-green: #008a5a;
+
+  --gradient-neon: linear-gradient(135deg, #0099b8 0%, #7028e0 50%, #c4148a 100%);
+  --gradient-neon-soft: linear-gradient(135deg, rgba(0,153,184,0.10) 0%, rgba(112,40,224,0.10) 50%, rgba(196,20,138,0.10) 100%);
+  --gradient-text: linear-gradient(135deg, #0099b8 0%, #c4148a 100%);
+
+  --glow-cyan: 0 0 12px rgba(0,153,184,0.25);
+  --glow-magenta: 0 0 12px rgba(196,20,138,0.25);
+  --shadow-window: 0 30px 80px -20px rgba(0,30,80,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+
+  --traffic-close: #ff5f57;
+  --traffic-min: #febc2e;
+  --traffic-max: #28c840;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  background: var(--bg-0);
+  color: var(--text-0);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================================
+   ATMOSPHERIC BACKGROUND — animated grid + gradient orbs
+   ============================================================ */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(600px circle at 15% 20%, rgba(0,240,255,0.10), transparent 50%),
+    radial-gradient(600px circle at 85% 80%, rgba(255,43,214,0.10), transparent 50%),
+    radial-gradient(400px circle at 50% 50%, rgba(157,77,255,0.06), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+  animation: orb-drift 18s ease-in-out infinite alternate;
+}
+:root[data-theme="light"] body::after {
+  background:
+    radial-gradient(600px circle at 15% 20%, rgba(0,153,184,0.08), transparent 50%),
+    radial-gradient(600px circle at 85% 80%, rgba(196,20,138,0.06), transparent 50%);
+}
+@keyframes orb-drift {
+  0%   { transform: translate(0,0); }
+  100% { transform: translate(40px, -30px); }
+}
+
+/* ============================================================
+   TOP BAR — system-level header with theme toggle, search
+   ============================================================ */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  background: rgba(7,8,13,0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+:root[data-theme="light"] .topbar {
+  background: rgba(255,255,255,0.75);
+}
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Major Mono Display', monospace;
+  font-size: 18px;
+  letter-spacing: 0.05em;
+}
+.brand-logo {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--gradient-neon);
+  display: grid; place-items: center;
+  color: #07080d; font-weight: 700; font-size: 14px;
+  box-shadow: var(--glow-magenta);
+  position: relative;
+  font-family: 'JetBrains Mono', monospace;
+}
+.brand-logo::after {
+  content: '';
+  position: absolute; inset: -2px;
+  background: var(--gradient-neon);
+  border-radius: 10px; z-index: -1;
+  filter: blur(12px); opacity: 0.6;
+}
+.brand-text { background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brand-tag { font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text-2); letter-spacing: 0.15em; text-transform: uppercase; padding-left: 12px; border-left: 1px solid var(--border); margin-left: 6px; }
+
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+
+.search-box {
+  position: relative;
+  display: flex; align-items: center;
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 14px 8px 36px;
+  width: 320px; max-width: 40vw;
+  transition: all 0.2s;
+}
+.search-box:focus-within {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0,240,255,0.12);
+}
+.search-box i { position: absolute; left: 12px; color: var(--text-2); font-size: 14px; }
+.search-box input {
+  background: transparent; border: none; outline: none;
+  color: var(--text-0); font-family: 'JetBrains Mono'; font-size: 13px;
+  width: 100%;
+}
+.search-box input::placeholder { color: var(--text-3); }
+.search-kbd { font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text-3); padding: 2px 6px; border: 1px solid var(--border); border-radius: 4px; }
+
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--bg-2); border: 1px solid var(--border);
+  color: var(--text-1);
+  display: grid; place-items: center;
+  cursor: pointer; transition: all 0.2s;
+  font-size: 16px;
+}
+.icon-btn:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0,240,255,0.10);
+}
+
+/* ============================================================
+   LAYOUT — sidebar + main work area
+   ============================================================ */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 60px);
+  position: relative; z-index: 1;
+}
+
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  background: rgba(12,14,22,0.4);
+  backdrop-filter: blur(20px);
+  position: sticky; top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+:root[data-theme="light"] .sidebar { background: rgba(246,247,251,0.6); }
+
+.sidebar-label {
+  font-family: 'JetBrains Mono'; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--text-3);
+  padding: 0 8px 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sidebar-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+.project-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px; }
+.project-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 8px;
+  cursor: pointer; transition: all 0.15s;
+  border: 1px solid transparent;
+  position: relative;
+}
+.project-item:hover { background: var(--bg-hover); }
+.project-item.active {
+  background: var(--gradient-neon-soft);
+  border-color: var(--border-strong);
+}
+.project-item.active::before {
+  content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 60%;
+  background: var(--gradient-neon);
+  border-radius: 0 3px 3px 0;
+  box-shadow: var(--glow-cyan);
+}
+.project-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: grid; place-items: center;
+  font-family: 'JetBrains Mono'; font-weight: 700; font-size: 13px;
+  flex-shrink: 0;
+}
+.project-icon.flutter { background: linear-gradient(135deg, #02569B, #0175C2); color: white; }
+.project-icon.react { background: linear-gradient(135deg, #61DAFB, #21232A); color: #0f1419; }
+.project-icon.next { background: linear-gradient(135deg, #000000 0%, #4dffb8 50%, #00f0ff 100%); color: white; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); }
+.project-info { flex: 1; min-width: 0; }
+.project-name { font-size: 13px; font-weight: 600; color: var(--text-0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.project-meta { font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text-2); margin-top: 2px; }
+
+.sidebar-section { margin-top: 8px; }
+.section-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 6px;
+  font-size: 12px; color: var(--text-1);
+  cursor: pointer; transition: all 0.15s;
+  font-family: 'JetBrains Mono';
+}
+.section-link:hover { background: var(--bg-hover); color: var(--neon-cyan); }
+.section-link i { font-size: 14px; color: var(--text-3); }
+.section-link .num {
+  margin-left: auto;
+  font-size: 10px; color: var(--text-3);
+  background: var(--bg-3); padding: 1px 6px; border-radius: 10px;
+}
+
+/* ============================================================
+   MAIN — Mac window with tabs, content
+   ============================================================ */
+.main {
+  padding: 24px;
+  min-width: 0;
+}
+
+.window {
+  background: var(--bg-window);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow-window);
+}
+
+.window-titlebar {
+  display: flex; align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+:root[data-theme="light"] .window-titlebar {
+  background: linear-gradient(180deg, rgba(0,0,0,0.025), rgba(0,0,0,0.01));
+}
+
+.traffic-lights { display: flex; gap: 8px; }
+.traffic-light {
+  width: 12px; height: 12px; border-radius: 50%;
+  position: relative;
+}
+.traffic-light.close { background: var(--traffic-close); }
+.traffic-light.min { background: var(--traffic-min); }
+.traffic-light.max { background: var(--traffic-max); }
+.traffic-light::after {
+  content: ''; position: absolute; inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.2);
+}
+
+.window-title {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'JetBrains Mono'; font-size: 12px;
+  color: var(--text-2);
+  letter-spacing: 0.05em;
+  display: flex; align-items: center; gap: 8px;
+}
+.window-title strong { color: var(--text-0); font-weight: 600; }
+.window-title .sep { color: var(--text-3); }
+
+/* Tab bar — switches between "My Project" and "Generic" */
+.tab-bar {
+  display: flex;
+  padding: 0 16px;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  padding: 14px 20px;
+  font-family: 'JetBrains Mono'; font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+  position: relative;
+}
+.tab:hover { color: var(--text-0); }
+.tab.active {
+  color: var(--text-0);
+  border-bottom-color: var(--neon-cyan);
+}
+.tab.active::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+  height: 2px; background: var(--gradient-neon);
+  box-shadow: var(--glow-cyan);
+}
+.tab .badge {
+  font-size: 9px; padding: 2px 6px; border-radius: 8px;
+  background: var(--bg-3); color: var(--text-2);
+  border: 1px solid var(--border);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.tab.active .badge {
+  background: var(--gradient-neon-soft);
+  color: var(--text-0);
+  border-color: var(--border-strong);
+}
+
+/* ============================================================
+   CONTENT — project hero, sections, code blocks
+   ============================================================ */
+.content { padding: 32px; }
+.content > * + * { margin-top: 24px; }
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fade-up 0.4s ease both; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero panel for each project version */
+.hero {
+  background: var(--gradient-neon-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 100% 0%, rgba(255,43,214,0.15), transparent 50%),
+              radial-gradient(circle at 0% 100%, rgba(0,240,255,0.15), transparent 50%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: 'JetBrains Mono'; font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero-eyebrow .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.92); }
+}
+.hero h1 {
+  font-family: 'Space Grotesk'; font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 700;
+  background: var(--gradient-text);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.hero p { color: var(--text-1); font-size: 14px; max-width: 700px; line-height: 1.6; }
+.hero-meta {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 20px;
+}
+.hero-actions {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 18px;
+  position: relative; z-index: 1;
+}
+.hero-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border-radius: 8px;
+  font-family: 'JetBrains Mono'; font-size: 12px;
+  text-decoration: none;
+  background: var(--gradient-neon);
+  color: #07080d;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,240,255,0.2), 0 4px 16px rgba(255,43,214,0.2);
+}
+.hero-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,240,255,0.35), 0 6px 20px rgba(255,43,214,0.35);
+}
+.hero-btn.ghost {
+  background: transparent;
+  color: var(--text-1);
+  border-color: var(--border-strong);
+  box-shadow: none;
+}
+.hero-btn.ghost:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0,240,255,0.1);
+}
+.hero-btn i { font-size: 14px; }
+.chip {
+  font-family: 'JetBrains Mono'; font-size: 11px;
+  background: var(--bg-2); border: 1px solid var(--border);
+  padding: 5px 10px; border-radius: 999px;
+  color: var(--text-1);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.chip i { font-size: 12px; color: var(--neon-cyan); }
+
+/* Collapsible section card */
+.section {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.section.open { border-color: var(--border-strong); }
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 22px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.section-header:hover { background: var(--bg-hover); }
+.section-num {
+  font-family: 'JetBrains Mono'; font-size: 11px;
+  color: var(--text-3);
+  background: var(--bg-3); border: 1px solid var(--border);
+  padding: 3px 8px; border-radius: 6px;
+  flex-shrink: 0;
+}
+.section-icon {
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  background: var(--bg-3);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  color: var(--neon-cyan);
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 12px rgba(0,240,255,0.08);
+}
+.section.open .section-icon {
+  background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(255,43,214,0.15));
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0,240,255,0.3);
+}
+.section-title {
+  font-size: 15px; font-weight: 600; color: var(--text-0);
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+.section-sub { font-family: 'JetBrains Mono'; font-size: 11px; color: var(--text-2); }
+.section-toggle {
+  color: var(--text-2);
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+.section.open .section-toggle { transform: rotate(90deg); color: var(--neon-cyan); }
+
+.section-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+.section.open .section-body { grid-template-rows: 1fr; }
+.section-body-inner {
+  overflow: hidden;
+  padding: 0 22px;
+}
+.section.open .section-body-inner {
+  padding: 6px 22px 22px;
+  border-top: 1px dashed var(--border);
+  margin-top: 0;
+}
+
+/* Sub-step / individual command card */
+.step { margin-top: 16px; }
+.step-label {
+  display: flex; align-items: baseline; gap: 10px;
+  font-size: 13px; color: var(--text-1);
+  margin-bottom: 8px; line-height: 1.5;
+}
+.step-label .marker {
+  font-family: 'JetBrains Mono'; font-size: 10px;
+  color: var(--neon-magenta);
+  background: rgba(255,43,214,0.08);
+  padding: 2px 7px; border-radius: 4px;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+}
+.step-label strong { color: var(--text-0); font-weight: 600; }
+.step-note {
+  font-size: 12px; color: var(--text-2); line-height: 1.6;
+  margin: 8px 0;
+  padding: 10px 14px;
+  background: var(--bg-2);
+  border-left: 2px solid var(--neon-violet);
+  border-radius: 0 6px 6px 0;
+}
+.step-note.warn { border-left-color: var(--neon-yellow); }
+.step-note.warn::before { content: '⚠ '; color: var(--neon-yellow); font-weight: 700; }
+.step-note.danger { border-left-color: var(--traffic-close); }
+.step-note.danger::before { content: '⛔ '; }
+
+/* Code block — terminal styled */
+.code-block {
+  position: relative;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'JetBrains Mono';
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+:root[data-theme="light"] .code-header { background: rgba(0,0,0,0.025); }
+.code-lang {
+  color: var(--text-2); letter-spacing: 0.1em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+}
+.code-lang::before {
+  content: '▸'; color: var(--neon-cyan);
+}
+.copy-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  transition: all 0.15s;
+}
+.copy-btn:hover {
+  border-color: var(--neon-cyan); color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0,240,255,0.08);
+}
+.copy-btn.copied {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+}
+.copy-btn i { font-size: 12px; }
+
+.code-block pre {
+  padding: 14px 16px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-1);
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-block pre::-webkit-scrollbar { height: 6px; }
+.code-block pre::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* Token coloring */
+.t-cmt  { color: var(--text-3); font-style: italic; }
+.t-cmd  { color: var(--neon-cyan); font-weight: 600; }
+.t-flag { color: var(--neon-magenta); }
+.t-str  { color: var(--neon-green); }
+.t-key  { color: var(--neon-violet); }
+.t-num  { color: var(--neon-yellow); }
+.t-fn   { color: #ffb86c; }
+
+/* Inline code chips */
+code.inline {
+  font-family: 'JetBrains Mono'; font-size: 0.88em;
+  background: var(--bg-3); border: 1px solid var(--border);
+  padding: 1px 6px; border-radius: 4px;
+  color: var(--neon-magenta);
+}
+
+/* Tables */
+.table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-top: 12px;
+}
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px;
+  font-family: 'JetBrains Mono';
+}
+th, td {
+  padding: 10px 14px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  background: var(--bg-2);
+  color: var(--text-2);
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; font-size: 10px;
+}
+tr:last-child td { border-bottom: none; }
+td { color: var(--text-1); }
+td:first-child { color: var(--text-0); font-weight: 500; }
+
+/* Checklist items */
+ul.check-list { list-style: none; padding: 0; }
+ul.check-list li {
+  padding: 8px 0 8px 28px;
+  position: relative;
+  font-size: 13px; color: var(--text-1);
+  border-bottom: 1px dashed var(--border);
+}
+ul.check-list li:last-child { border-bottom: none; }
+ul.check-list li::before {
+  content: '☐';
+  position: absolute; left: 4px; top: 7px;
+  color: var(--text-3); font-size: 16px;
+}
+
+/* Search results */
+.no-results {
+  display: none;
+  text-align: center; padding: 60px 20px;
+  color: var(--text-2); font-family: 'JetBrains Mono';
+}
+.no-results.show { display: block; }
+
+/* Hidden when filtered out */
+.section.hidden, .step.hidden, .tab-pane.search-hidden { display: none !important; }
+.section.search-match { border-color: var(--neon-cyan); }
+mark.search-hl {
+  background: rgba(0,240,255,0.25);
+  color: var(--text-0);
+  padding: 0 2px; border-radius: 2px;
+}
+
+/* Footer */
+.footer {
+  padding: 24px;
+  text-align: center;
+  font-family: 'JetBrains Mono'; font-size: 11px;
+  color: var(--text-3);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+.footer span { color: var(--neon-cyan); }
+
+/* ============================================================
+   MOBILE — collapse sidebar, stack layout
+   ============================================================ */
+.mobile-menu-btn { display: none; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed; top: 60px; left: 0;
+    width: 280px; height: calc(100vh - 60px);
+    z-index: 90;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    background: var(--bg-1);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .mobile-menu-btn { display: grid; }
+  .search-box { width: 200px; }
+  .main { padding: 16px; }
+  .content { padding: 20px; }
+  .hero { padding: 22px; }
+  .hero h1 { font-size: 22px; }
+  .section-header { padding: 14px 16px; gap: 10px; }
+  .section.open .section-body-inner { padding: 6px 16px 16px; }
+  .window-title { display: none; }
+  .tab { padding: 12px 14px; font-size: 11px; }
+  .topbar { padding: 12px 16px; }
+  .brand-tag { display: none; }
+}
+
+@media (max-width: 480px) {
+  .search-box { width: 140px; padding-left: 32px; }
+  .search-kbd { display: none; }
+  .step-label { flex-wrap: wrap; }
+}
+
+/* Sidebar overlay on mobile */
+.overlay {
+  display: none; position: fixed; inset: 60px 0 0;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  z-index: 80;
+}
+.overlay.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ==================== TOP BAR ==================== -->
+<div class="topbar">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <button class="icon-btn mobile-menu-btn" id="menuBtn" aria-label="Menu"><i class="i-menu"></i></button>
+    <div class="brand">
+      <div class="brand-logo">D</div>
+      <span class="brand-text">DEVREF</span>
+      <span class="brand-tag">setup // console</span>
+    </div>
+  </div>
+
+  <div class="topbar-actions">
+    <div class="search-box">
+      <i class="i-search"></i>
+      <input type="text" id="searchInput" placeholder="Search commands, sections..." />
+      <span class="search-kbd">⌘K</span>
+    </div>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
+      <i class="i-moon" id="themeIcon"></i>
+    </button>
+    <button class="icon-btn" id="expandAllBtn" aria-label="Expand all" title="Expand / collapse all">
+      <i class="i-list-collapse"></i>
+    </button>
+  </div>
+</div>
+
+<!-- ==================== LAYOUT ==================== -->
+<div class="layout">
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-label">Frontend // Mobile</div>
+    <div class="project-list" id="projectList">
+      <div class="project-item active" data-project="otv">
+        <div class="project-icon flutter">Fl</div>
+        <div class="project-info">
+          <div class="project-name">OTV News App</div>
+          <div class="project-meta">flutter // android</div>
+        </div>
+      </div>
+      <div class="project-item" data-project="stringer">
+        <div class="project-icon react">RN</div>
+        <div class="project-info">
+          <div class="project-name">Stringer App</div>
+          <div class="project-meta">expo // react-native</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-label">Fullstack // Web</div>
+    <div class="project-list" id="projectListFullstack">
+      <div class="project-item" data-project="fullstack">
+        <div class="project-icon next">Nx</div>
+        <div class="project-info">
+          <div class="project-name">Fullstack Stack</div>
+          <div class="project-meta">next + prisma + neon</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-label">Sections <span style="margin-left:auto;color:var(--text-3)" id="sectionCount"></span></div>
+    <div class="sidebar-section" id="sectionNav"></div>
+
+    <div class="sidebar-label" style="margin-top:24px">Tips</div>
+    <div class="sidebar-section">
+      <div class="section-link" style="cursor:default">
+        <i class="i-keyboard"></i>
+        <span style="font-size:11px;line-height:1.6;color:var(--text-2)">Click any code block to copy. Use search to find commands fast.</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+    <div class="window">
+      <!-- titlebar -->
+      <div class="window-titlebar">
+        <div class="traffic-lights">
+          <div class="traffic-light close"></div>
+          <div class="traffic-light min"></div>
+          <div class="traffic-light max"></div>
+        </div>
+        <div class="window-title">
+          <i class="i-terminal"></i>
+          <strong id="winTitle">otv-news-flutter-app</strong>
+          <span class="sep">—</span>
+          <span id="winPath">~/Desktop/App</span>
+        </div>
+      </div>
+
+      <!-- tabs -->
+      <div class="tab-bar" id="tabBar"></div>
+
+      <!-- content panes -->
+      <div class="content" id="content"></div>
+
+      <div class="no-results" id="noResults">
+        <div style="font-size:48px;margin-bottom:12px">⌕</div>
+        <div>No matches. Try a different keyword.</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>devref</span> // commands extracted from project setup notes // last sync 2026-05-07
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   ICON HELPER — using lucide-static font
+   The font CSS uses .icon-NAME:before with content: ligature
+   We map our .i-NAME classes → .icon-NAME
+   ============================================================ */
+function mapIcons(root = document) {
+  root.querySelectorAll('[class*="i-"]').forEach(el => {
+    const cls = [...el.classList].find(c => c.startsWith('i-') && !c.startsWith('icon-'));
+    if (!cls) return;
+    const name = cls.slice(2);
+    if (!el.classList.contains('icon-' + name)) {
+      el.classList.add('icon-' + name);
+    }
+  });
+}
+mapIcons();
+
+/* ============================================================
+   PROJECT DATA — both projects, both versions
+   Structure: projects -> versions -> sections -> steps
+   Each step has: marker, title, note(s), code blocks
+   ============================================================ */
+const PROJECTS = {
+  otv: {
+    name: 'OTV News App',
+    path: '~/Desktop/App',
+    titleSlug: 'otv-news-flutter-app',
+    icon: 'flutter',
+    md: 'md/otv-news.md',
+    chips: [
+      { i: 'i-package', t: 'com.news.odisha_tv.otv_news' },
+      { i: 'i-git-branch', t: 'production' },
+      { i: 'i-cpu', t: 'AGP 8.9.1 / Kotlin 2.1.0' },
+      { i: 'i-bell', t: 'WebEngage SDK' }
+    ],
+    versions: {
+      mine: {
+        label: 'My Project',
+        badge: 'OTV',
+        title: 'OTV News — Flutter Build Setup',
+        sub: 'Real-world commands for the OTV News Android Flutter app, with package-name fixes and WebEngage integration.',
+        sections: otvMineSections()
+      },
+      generic: {
+        label: 'Generic Flutter',
+        badge: 'Template',
+        title: 'Flutter Project — Generic Setup',
+        sub: 'Reusable Flutter + Android setup template. Strip the OTV specifics — this is your boilerplate for any Flutter app.',
+        sections: otvGenericSections()
+      }
+    }
+  },
+  stringer: {
+    name: 'Stringer App',
+    path: '~/Desktop/Apps',
+    titleSlug: 'stringer-app',
+    icon: 'react',
+    md: 'md/stringer.md',
+    chips: [
+      { i: 'i-package', t: 'stringer-app' },
+      { i: 'i-git-branch', t: 'main' },
+      { i: 'i-cpu', t: 'Expo SDK 54 / RN' },
+      { i: 'i-cloud', t: 'EAS Build' }
+    ],
+    versions: {
+      mine: {
+        label: 'My Project',
+        badge: 'OTV',
+        title: 'Stringer — Expo / React Native Setup',
+        sub: 'OTV-Stringer mobile app. Field journalist workflow with Expo Router, NativeWind, and EAS Build distribution.',
+        sections: stringerMineSections()
+      },
+      generic: {
+        label: 'Generic Expo / RN',
+        badge: 'Template',
+        title: 'Expo + React Native — Generic Setup',
+        sub: 'Reusable Expo + NativeWind + EAS template. Use as your starting point for any mobile React Native project.',
+        sections: stringerGenericSections()
+      }
+    }
+  },
+  fullstack: {
+    name: 'Fullstack Stack',
+    path: '~/Desktop/my-practice',
+    titleSlug: 'next-prisma-neon-vercel',
+    icon: 'next',
+    md: 'md/fullstack.md',
+    chips: [
+      { i: 'i-package', t: 'next.js + prisma' },
+      { i: 'i-database', t: 'Neon Postgres' },
+      { i: 'i-shield', t: 'JWT + bcrypt' },
+      { i: 'i-cloud', t: 'Vercel Deploy' }
+    ],
+    versions: {
+      mine: {
+        label: 'My Project',
+        badge: 'PRIYA',
+        title: 'Fullstack — Next.js + Prisma + Neon + Vercel',
+        sub: 'Real-world fullstack project workflow: Next.js + Prisma migrations + Neon Postgres + Vercel deployment, with everyday Git commands and bug fixes.',
+        sections: fullstackMineSections()
+      },
+      generic: {
+        label: 'Generic Next.js',
+        badge: 'Template',
+        title: 'Next.js + Prisma — Generic Setup',
+        sub: 'Reusable fullstack template. Start any Next.js + database project from this skeleton.',
+        sections: fullstackGenericSections()
+      }
+    }
+  }
+};
+
+/* ============================================================
+   SECTION DEFINITIONS — OTV / MY PROJECT
+   ============================================================ */
+function otvMineSections() {
+  return [
+    { num: '01', icon: 'i-radar', title: 'Initial Project Setup', sub: 'verify environment',
+      steps: [
+        { title: 'Check Flutter installation',
+          note: 'Verifies Flutter is installed and shows the version.',
+          code: { lang: 'bash', text: `flutter --version` } },
+        { title: 'Check Flutter health & devices',
+          note: 'Diagnoses missing components (Android SDK, Xcode, etc.) and lists connected devices.',
+          code: { lang: 'bash', text: `# Diagnose Flutter installation
+flutter doctor
+
+# List connected devices, emulators, and desktop targets
+flutter devices` } },
+        { title: 'Navigate into the project',
+          code: { lang: 'bash', text: `cd /Users/otvdigital/Desktop/App/otv_news_flutter_app` } }
+      ]
+    },
+    { num: '02', icon: 'i-stethoscope', title: 'Diagnosing Project Issues', sub: 'package name & branches',
+      steps: [
+        { title: 'Inspect the package name in pubspec.yaml',
+          note: 'Must match imports in lib/. A mismatch breaks every import resolution.',
+          code: { lang: 'bash', text: `grep "^name:" pubspec.yaml` } },
+        { title: 'Audit imports in source code',
+          code: { lang: 'bash', text: `# Lists all unique package imports used in lib/
+grep -rh "^import 'package:" lib | sort -u | head -50` } },
+        { title: 'Search for stale package names',
+          note: 'Detect leftover references that may cause import resolution errors.',
+          code: { lang: 'bash', text: `grep -r "otv_news_development" . \\
+  --include="*.yaml" --include="*.dart" --include="*.json" \\
+  --exclude-dir=node_modules --exclude-dir=build 2>/dev/null | head -20` } },
+        { title: 'Check the package config cache',
+          code: { lang: 'bash', text: `cat .dart_tool/package_config.json | grep -A 2 '"name": "otv_news'` } },
+        { title: 'Inspect Git branches & history',
+          code: { lang: 'bash', text: `git branch -a
+git log --oneline -10` } }
+      ]
+    },
+    { num: '03', icon: 'i-wrench', title: 'Fix Branch & Package Name', sub: 'the key fix',
+      steps: [
+        { title: 'Stash and switch to the working branch',
+          warn: 'production was the branch with the correct dependencies.',
+          code: { lang: 'bash', text: `git stash
+git checkout production` } },
+        { title: 'Rename the package in pubspec.yaml',
+          note: 'macOS BSD sed needs the empty string after -i. This was the key fix — imports use otv_news but pubspec had otv_news_development.',
+          code: { lang: 'bash', text: `sed -i '' 's/^name: otv_news_development$/name: otv_news/' pubspec.yaml
+
+# verify
+grep "^name:" pubspec.yaml` } }
+      ]
+    },
+    { num: '04', icon: 'i-trash-2', title: 'Clean & Reset', sub: 'when builds misbehave',
+      steps: [
+        { title: 'Standard Flutter clean',
+          code: { lang: 'bash', text: `flutter clean` } },
+        { title: 'Deep clean (nuclear option)',
+          warn: 'Use after package-name changes or cache corruption.',
+          code: { lang: 'bash', text: `rm -rf .dart_tool                    # dart package resolution cache
+rm -rf build                          # build outputs
+rm -f pubspec.lock                    # locked dependency versions
+rm -f .flutter-plugins                # old flutter plugins file
+rm -f .flutter-plugins-dependencies   # plugin dependency tree` } },
+        { title: 'Stop Gradle daemons & clear gradle cache',
+          code: { lang: 'bash', text: `cd android && ./gradlew --stop && cd ..
+rm -rf ~/.gradle/caches/transforms-*
+rm -rf android/.gradle` } },
+        { title: 'Re-fetch dependencies',
+          code: { lang: 'bash', text: `flutter pub get` } }
+      ]
+    },
+    { num: '05', icon: 'i-package-plus', title: 'Add Missing Dependencies', sub: '5 missing packages',
+      steps: [
+        { title: 'Add a single package',
+          code: { lang: 'bash', text: `flutter pub add <package_name>` } },
+        { title: 'Add OTV\'s 5 missing packages at once',
+          code: { lang: 'bash', text: `flutter pub add in_app_update package_info_plus video_player volume_controller shimmer` } },
+        { title: 'Add WebEngage SDK',
+          code: { lang: 'bash', text: `flutter pub add webengage_flutter` } },
+        { title: 'Check for outdated packages',
+          code: { lang: 'bash', text: `flutter pub outdated` } }
+      ]
+    },
+    { num: '06', icon: 'i-settings-2', title: 'Android Build Configuration', sub: 'AGP / Kotlin / Gradle',
+      steps: [
+        { title: 'Update Android Gradle Plugin to 8.9.1',
+          warn: 'application AND library plugin versions must match.',
+          code: { lang: 'bash', text: `sed -i '' 's|id "com.android.application" version "8.6.1"|id "com.android.application" version "8.9.1"|' android/settings.gradle
+
+sed -i '' 's|id "com.android.library" version "8.6.1" apply false|id "com.android.library" version "8.9.1" apply false|' android/settings.gradle` } },
+        { title: 'Pin Kotlin to 2.1.0',
+          note: 'Avoid 2.2.0 — causes Kotlin daemon crashes with AGP 8.9.1.',
+          code: { lang: 'bash', text: `sed -i '' 's|id "org.jetbrains.kotlin.android" version "2.2.0" apply false|id "org.jetbrains.kotlin.android" version "2.1.0" apply false|' android/settings.gradle` } },
+        { title: 'Verify Gradle wrapper version',
+          note: 'AGP 8.9.1 requires Gradle 8.11.1 or higher.',
+          code: { lang: 'bash', text: `cat android/gradle/wrapper/gradle-wrapper.properties` } },
+        { title: 'Update Gradle wrapper to 8.11.1',
+          code: { lang: 'bash', text: `sed -i '' 's|gradle-[0-9.]*-all.zip|gradle-8.11.1-all.zip|' android/gradle/wrapper/gradle-wrapper.properties
+sed -i '' 's|gradle-[0-9.]*-bin.zip|gradle-8.11.1-bin.zip|' android/gradle/wrapper/gradle-wrapper.properties` } },
+        { title: 'Verify Java version',
+          note: 'AGP 8.9.1 requires Java 17 or higher.',
+          code: { lang: 'bash', text: `java -version
+/usr/libexec/java_home -v 17` } },
+        { title: 'Confirm version changes',
+          code: { lang: 'bash', text: `grep "com.android\\|kotlin" android/settings.gradle` } }
+      ]
+    },
+    { num: '07', icon: 'i-key-round', title: 'Keystore Setup (Debug)', sub: 'self-signed for dev',
+      steps: [
+        { title: 'Generate a dummy debug keystore',
+          note: 'Self-signed cert valid for 10,000 days — plenty for development.',
+          code: { lang: 'bash', text: `cd android
+keytool -genkey -v -keystore app/debug-keystore.jks \\
+  -keyalg RSA -keysize 2048 -validity 10000 -alias debug \\
+  -storepass android -keypass android \\
+  -dname "CN=Debug, OU=Debug, O=Debug, L=Debug, S=Debug, C=IN"
+cd ..` } },
+        { title: 'Create the key.properties file',
+          note: 'build.gradle expects this file to exist.',
+          code: { lang: 'bash', text: `cat > android/key.properties << 'EOF'
+storePassword=android
+keyPassword=android
+keyAlias=debug
+storeFile=app/debug-keystore.jks
+EOF` } },
+        { title: 'Verify keystore files exist',
+          code: { lang: 'bash', text: `ls -la android/key.properties android/app/debug-keystore.jks` } },
+        { title: 'Add keystore files to .gitignore',
+          danger: 'Never commit keystores to git.',
+          code: { lang: 'bash', text: `echo "" >> .gitignore
+echo "# Local keystore (dummy for debug builds)" >> .gitignore
+echo "android/key.properties" >> .gitignore
+echo "android/app/debug-keystore.jks" >> .gitignore` } },
+        { title: 'For production release',
+          warn: 'The dummy keystore is ONLY for debug builds. For Play Store releases, get the real key.properties and .jks from your team lead.' }
+      ]
+    },
+    { num: '08', icon: 'i-rocket', title: 'Build & Run', sub: 'debug + release',
+      steps: [
+        { title: 'Run on a specific device',
+          code: { lang: 'bash', text: `# Replace RZGL11G9QEL with your device id from \`flutter devices\`
+flutter run -d RZGL11G9QEL` } },
+        { title: 'Run with device picker',
+          code: { lang: 'bash', text: `flutter run` } },
+        { title: 'Run on Android emulator',
+          code: { lang: 'bash', text: `flutter emulators
+flutter emulators --launch <emulator_id>
+flutter run` } },
+        { title: 'Build release APK',
+          note: 'Output: build/app/outputs/flutter-apk/app-release.apk',
+          code: { lang: 'bash', text: `flutter build apk --release` } },
+        { title: 'Build Play Store app bundle',
+          note: 'Output: build/app/outputs/bundle/release/app-release.aab',
+          code: { lang: 'bash', text: `flutter build appbundle --release` } },
+        { title: 'Verbose / tail-only output',
+          code: { lang: 'bash', text: `# Verbose
+flutter run -d RZGL11G9QEL -v
+
+# Last 80 lines (helpful when output overflows)
+flutter run -d RZGL11G9QEL 2>&1 | tail -80` } }
+      ]
+    },
+    { num: '09', icon: 'i-bell-ring', title: 'WebEngage Integration', sub: 'India data center',
+      steps: [
+        { title: 'Step 1 — Add the Flutter plugin',
+          code: { lang: 'bash', text: `flutter pub add webengage_flutter` } },
+        { title: 'Step 2 — Find Android source files',
+          code: { lang: 'bash', text: `find android/app/src/main -name "*.kt" -o -name "*.java" | head -10` } },
+        { title: 'Step 3 — Create MainApplication.java',
+          warn: 'Replace ~d3a4b43d with YOUR license code from WebEngage admin.',
+          code: { lang: 'bash', text: `cat > android/app/src/main/java/com/news/odisha_tv/otv_news/MainApplication.java << 'EOF'
+package com.news.odisha_tv.otv_news;
+
+import io.flutter.app.FlutterApplication;
+import com.webengage.webengage_plugin.WebengageInitializer;
+import com.webengage.sdk.android.WebEngageConfig;
+import com.webengage.sdk.android.LocationTrackingStrategy;
+
+public class MainApplication extends FlutterApplication {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        WebEngageConfig webEngageConfig = new WebEngageConfig.Builder()
+                .setWebEngageKey("~d3a4b43d")
+                .setAutoGCMRegistrationFlag(false)
+                .setLocationTrackingStrategy(LocationTrackingStrategy.ACCURACY_BEST)
+                .setDebugMode(true)
+                .build();
+        WebengageInitializer.initialize(this, webEngageConfig);
+    }
+}
+EOF` } },
+        { title: 'Step 4 — Verify file was created',
+          code: { lang: 'bash', text: `ls -la android/app/src/main/java/com/news/odisha_tv/otv_news/
+cat android/app/src/main/java/com/news/odisha_tv/otv_news/MainApplication.java` } },
+        { title: 'Step 5 — Update AndroidManifest.xml',
+          code: { lang: 'bash', text: `# Set .MainApplication as the application class, disable backup
+sed -i '' 's|android:name="\${applicationName}"|android:name=".MainApplication"\\
+        android:allowBackup="false"|' android/app/src/main/AndroidManifest.xml
+
+# Add India data center meta-data after AdMob entry
+sed -i '' 's|android:value="ca-app-pub-1011955008088827~4025305194" />|android:value="ca-app-pub-1011955008088827~4025305194" />\\
+\\
+        <!-- WebEngage Data Center: India -->\\
+        <meta-data\\
+            android:name="com.webengage.sdk.android.environment"\\
+            android:value="in" />|' android/app/src/main/AndroidManifest.xml` } },
+        { title: 'Step 6 — Verify manifest changes',
+          code: { lang: 'bash', text: `# Should show .MainApplication as the application name
+grep -A 4 "<application" android/app/src/main/AndroidManifest.xml
+
+# Should show exactly ONE WebEngage entry
+grep -c "com.webengage.sdk.android.environment" android/app/src/main/AndroidManifest.xml` } },
+        { title: 'Step 7 — Update lib/main.dart (in Android Studio)',
+          warn: 'Do this in your editor, not via terminal.',
+          code: { lang: 'dart', text: `// 1. Add import at top
+import 'package:webengage_flutter/webengage_flutter.dart';
+
+// 2. Convert MyApp from StatelessWidget to StatefulWidget
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late WebEngagePlugin _webEngagePlugin;
+
+  @override
+  void initState() {
+    super.initState();
+    _webEngagePlugin = WebEngagePlugin();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // existing build code
+  }
+}` } },
+        { title: 'Step 8 — Verify main.dart',
+          code: { lang: 'bash', text: `grep "webengage_flutter" lib/main.dart
+grep "class MyApp" lib/main.dart` } },
+        { title: 'Data Center Reference',
+          table: {
+            head: ['Dashboard URL', 'Environment Value'],
+            rows: [
+              ['dashboard.webengage.com', 'us (Global)'],
+              ['dashboard.in.webengage.com', 'in (India)'],
+              ['dashboard.ksa.webengage.com', 'ksa (Saudi Arabia)']
+            ]
+          }
+        }
+      ]
+    },
+    { num: '10', icon: 'i-circle-check-big', title: 'Verifying WebEngage', sub: 'logs & dashboard',
+      steps: [
+        { title: 'Filter logcat for WebEngage messages',
+          note: 'Run in a second terminal while the app is running.',
+          code: { lang: 'bash', text: `adb logcat | grep -i "webengage\\|WEG"` } },
+        { title: 'What success looks like',
+          code: { lang: 'log', text: `D WebEngage: WebEngage Successfully Initialized
+D WebEngage: WebEngageKey: ~d3a4b43d
+D WebEngage: Environment: in
+D WebEngage: Processing event: visitor_new_session
+D WebEngage: Events successfully Logged to server, scheduling next sync` } },
+        { title: 'Check the dashboard',
+          note: 'Login at dashboard.in.webengage.com → Users → Live Users. Allow 1–5 minutes for data to appear.' }
+      ]
+    },
+    { num: '11', icon: 'i-keyboard', title: 'Daily Development', sub: 'hot reload & adb',
+      steps: [
+        { title: 'Start the app',
+          code: { lang: 'bash', text: `flutter run -d RZGL11G9QEL` } },
+        { title: 'Hot reload, restart, quit',
+          code: { lang: 'log', text: `r    # hot reload (preserves state)
+R    # hot restart (full restart)
+q    # quit` } },
+        { title: 'Check device & restart ADB',
+          code: { lang: 'bash', text: `adb devices
+
+# If the device isn't detected
+adb kill-server
+adb start-server` } },
+        { title: 'Tail or save logs',
+          code: { lang: 'bash', text: `# Filter to your app
+adb logcat | grep "com.news.odisha_tv"
+
+# Save logs to file
+adb logcat > app_logs.txt` } },
+        { title: 'Screenshot the device',
+          code: { lang: 'bash', text: `adb exec-out screencap -p > screenshot.png` } },
+        { title: 'Install / uninstall APK',
+          code: { lang: 'bash', text: `adb install build/app/outputs/flutter-apk/app-release.apk
+adb uninstall com.news.odisha_tv` } }
+      ]
+    },
+    { num: '12', icon: 'i-life-buoy', title: 'Troubleshooting', sub: 'when things break',
+      steps: [
+        { title: '"Invalid depfile" errors',
+          code: { lang: 'bash', text: `flutter clean
+rm -rf .dart_tool
+flutter pub get` } },
+        { title: '"Cannot invoke ... path is null" (Kotlin daemon crash)',
+          code: { lang: 'bash', text: `cd android && ./gradlew --stop && cd ..
+rm -rf android/.gradle
+flutter clean` } },
+        { title: 'Couldn\'t resolve package "X"',
+          code: { lang: 'bash', text: `grep "X:" pubspec.yaml
+flutter pub add X` } },
+        { title: '"AAR Metadata" errors',
+          warn: 'AGP version mismatch — open android/settings.gradle and ensure both com.android.application AND com.android.library use the same version.' },
+        { title: 'Phone not detected',
+          code: { lang: 'log', text: `1. Unlock the phone
+2. Reconnect USB cable
+3. Pull down notification → switch USB mode to "File Transfer (MTP)"
+4. Accept "Allow USB debugging?" prompt
+5. flutter devices` } },
+        { title: '"google-services.json not found"',
+          warn: 'Required for Firebase. Get from team lead, place at android/app/google-services.json.' },
+        { title: 'First build is extremely slow',
+          note: 'Normal — Gradle and Kotlin caches download fresh. Subsequent incremental builds are <30s.' }
+      ]
+    },
+    { num: '13', icon: 'i-zap', title: 'One-Shot Setup From Fresh Clone', sub: 'new machine',
+      steps: [
+        { title: 'Full setup script',
+          code: { lang: 'bash', text: `# 1. Clone and enter
+git clone <repo_url>
+cd otv_news_flutter_app
+
+# 2. Switch to working branch
+git checkout production
+
+# 3. Fix package name if needed
+sed -i '' 's/^name: otv_news_development$/name: otv_news/' pubspec.yaml
+
+# 4. Get dependencies
+flutter pub get
+
+# 5. Generate dummy keystore for debug builds
+cd android
+keytool -genkey -v -keystore app/debug-keystore.jks -keyalg RSA \\
+  -keysize 2048 -validity 10000 -alias debug \\
+  -storepass android -keypass android \\
+  -dname "CN=Debug, OU=Debug, O=Debug, L=Debug, S=Debug, C=IN"
+cd ..
+
+# 6. Create key.properties
+cat > android/key.properties << 'EOF'
+storePassword=android
+keyPassword=android
+keyAlias=debug
+storeFile=app/debug-keystore.jks
+EOF
+
+# 7. Get device ID
+flutter devices
+
+# 8. Run on phone
+flutter run -d <YOUR_DEVICE_ID>` } }
+      ]
+    },
+    { num: '14', icon: 'i-list', title: 'Reference', sub: 'versions & files',
+      steps: [
+        { title: 'Versions used',
+          table: {
+            head: ['Component', 'Version'],
+            rows: [
+              ['Flutter SDK', '3.6.1+'],
+              ['Gradle', '8.11.1'],
+              ['Android Gradle Plugin', '8.9.1'],
+              ['Kotlin', '2.1.0'],
+              ['Java', '17'],
+              ['WebEngage Flutter SDK', '1.7.0'],
+              ['WebEngage Native Android SDK', '4.21.1'],
+              ['Target Android', 'API 36 (Android 16)']
+            ]
+          }
+        },
+        { title: 'Files created or modified',
+          table: {
+            head: ['File', 'Purpose'],
+            rows: [
+              ['pubspec.yaml', 'Package name + Flutter dependencies'],
+              ['android/key.properties', 'Debug keystore credentials'],
+              ['android/app/debug-keystore.jks', 'Debug signing certificate'],
+              ['android/settings.gradle', 'AGP, Kotlin, Gradle versions'],
+              ['android/app/src/main/AndroidManifest.xml', 'App config + WebEngage meta-data'],
+              ['android/app/src/main/java/.../MainApplication.java', 'WebEngage initialization'],
+              ['lib/main.dart', 'WebEngage import + initState'],
+              ['.gitignore', 'Excludes keystore files']
+            ]
+          }
+        },
+        { title: 'Required from team lead',
+          checklist: [
+            'android/app/google-services.json (Firebase Android)',
+            'ios/Runner/GoogleService-Info.plist (Firebase iOS)',
+            'Real android/key.properties (release keystore)',
+            'Real release keystore .jks file',
+            'WebEngage license code (~d3a4b43d)',
+            'Any .env files / environment-specific API keys'
+          ]
+        }
+      ]
+    }
+  ];
+}
+
+/* ============================================================
+   SECTION DEFINITIONS — OTV / GENERIC FLUTTER
+   ============================================================ */
+function otvGenericSections() {
+  return [
+    { num: '01', icon: 'i-radar', title: 'Verify Flutter Environment',
+      steps: [
+        { title: 'Check Flutter version, doctor, and devices',
+          code: { lang: 'bash', text: `flutter --version
+flutter doctor
+flutter devices` } }
+      ]
+    },
+    { num: '02', icon: 'i-sparkles', title: 'Create a New Flutter Project',
+      steps: [
+        { title: 'Create a brand-new Flutter app',
+          code: { lang: 'bash', text: `flutter create my_app --org com.example --platforms=android,ios
+cd my_app` } },
+        { title: 'Or clone an existing repo',
+          code: { lang: 'bash', text: `git clone <repo_url>
+cd <project_dir>
+git checkout <branch>` } }
+      ]
+    },
+    { num: '03', icon: 'i-stethoscope', title: 'Diagnose Existing Project',
+      steps: [
+        { title: 'Inspect package name (must match imports)',
+          code: { lang: 'bash', text: `grep "^name:" pubspec.yaml
+grep -rh "^import 'package:" lib | sort -u | head -50` } },
+        { title: 'Find legacy / stale package references',
+          code: { lang: 'bash', text: `grep -r "<old_package_name>" . \\
+  --include="*.yaml" --include="*.dart" --include="*.json" \\
+  --exclude-dir=node_modules --exclude-dir=build 2>/dev/null` } },
+        { title: 'Rename the package (macOS sed)',
+          code: { lang: 'bash', text: `sed -i '' 's/^name: <old_name>$/name: <new_name>/' pubspec.yaml` } }
+      ]
+    },
+    { num: '04', icon: 'i-trash-2', title: 'Clean Builds & Caches',
+      steps: [
+        { title: 'Standard clean',
+          code: { lang: 'bash', text: `flutter clean
+flutter pub get` } },
+        { title: 'Deep clean (after package rename / cache corruption)',
+          code: { lang: 'bash', text: `rm -rf .dart_tool build
+rm -f pubspec.lock .flutter-plugins .flutter-plugins-dependencies
+flutter pub get` } },
+        { title: 'Stop Gradle daemons',
+          code: { lang: 'bash', text: `cd android && ./gradlew --stop && cd ..
+rm -rf ~/.gradle/caches/transforms-* android/.gradle` } }
+      ]
+    },
+    { num: '05', icon: 'i-package-plus', title: 'Manage Dependencies',
+      steps: [
+        { title: 'Add a package',
+          code: { lang: 'bash', text: `flutter pub add <package_name>` } },
+        { title: 'Add multiple packages at once',
+          code: { lang: 'bash', text: `flutter pub add <pkg1> <pkg2> <pkg3>` } },
+        { title: 'List outdated packages',
+          code: { lang: 'bash', text: `flutter pub outdated` } }
+      ]
+    },
+    { num: '06', icon: 'i-settings-2', title: 'Android Build Configuration',
+      steps: [
+        { title: 'Match AGP application & library plugin versions',
+          warn: 'Both com.android.application and com.android.library must use the same version.',
+          code: { lang: 'bash', text: `# Example: bumping AGP from 8.6.1 → 8.9.1
+sed -i '' 's|id "com.android.application" version "8.6.1"|id "com.android.application" version "8.9.1"|' android/settings.gradle
+sed -i '' 's|id "com.android.library" version "8.6.1" apply false|id "com.android.library" version "8.9.1" apply false|' android/settings.gradle` } },
+        { title: 'Pin a stable Kotlin version',
+          code: { lang: 'bash', text: `# Update Kotlin plugin in settings.gradle
+sed -i '' 's|version "<old>"|version "<new>"|' android/settings.gradle` } },
+        { title: 'Update Gradle wrapper',
+          code: { lang: 'bash', text: `sed -i '' 's|gradle-[0-9.]*-all.zip|gradle-<new>-all.zip|' android/gradle/wrapper/gradle-wrapper.properties
+sed -i '' 's|gradle-[0-9.]*-bin.zip|gradle-<new>-bin.zip|' android/gradle/wrapper/gradle-wrapper.properties` } },
+        { title: 'Verify Java',
+          code: { lang: 'bash', text: `java -version
+/usr/libexec/java_home -v 17` } }
+      ]
+    },
+    { num: '07', icon: 'i-key-round', title: 'Debug Keystore',
+      steps: [
+        { title: 'Generate a self-signed debug keystore',
+          code: { lang: 'bash', text: `cd android
+keytool -genkey -v -keystore app/debug-keystore.jks \\
+  -keyalg RSA -keysize 2048 -validity 10000 -alias debug \\
+  -storepass android -keypass android \\
+  -dname "CN=Debug, O=Debug, C=IN"
+cd ..` } },
+        { title: 'Wire it into android/key.properties',
+          code: { lang: 'bash', text: `cat > android/key.properties << 'EOF'
+storePassword=android
+keyPassword=android
+keyAlias=debug
+storeFile=app/debug-keystore.jks
+EOF` } },
+        { title: 'Add to .gitignore',
+          danger: 'Never commit keystores to source control.',
+          code: { lang: 'bash', text: `echo "android/key.properties" >> .gitignore
+echo "android/app/debug-keystore.jks" >> .gitignore` } }
+      ]
+    },
+    { num: '08', icon: 'i-rocket', title: 'Build & Run',
+      steps: [
+        { title: 'Run on a connected device',
+          code: { lang: 'bash', text: `flutter devices
+flutter run -d <device_id>` } },
+        { title: 'Build release artifacts',
+          code: { lang: 'bash', text: `# APK (sideloading)
+flutter build apk --release
+
+# App Bundle (Play Store)
+flutter build appbundle --release` } }
+      ]
+    },
+    { num: '09', icon: 'i-keyboard', title: 'Daily Workflow',
+      steps: [
+        { title: 'Hot reload, restart, quit',
+          code: { lang: 'log', text: `r    # hot reload
+R    # hot restart
+q    # quit` } },
+        { title: 'ADB basics',
+          code: { lang: 'bash', text: `adb devices
+adb logcat | grep "<your.package.name>"
+adb install <path-to-apk>
+adb uninstall <your.package.name>
+adb exec-out screencap -p > screenshot.png` } }
+      ]
+    },
+    { num: '10', icon: 'i-life-buoy', title: 'Troubleshooting',
+      steps: [
+        { title: '"Invalid depfile"',
+          code: { lang: 'bash', text: `flutter clean && rm -rf .dart_tool && flutter pub get` } },
+        { title: 'Kotlin daemon error',
+          code: { lang: 'bash', text: `cd android && ./gradlew --stop && cd ..
+rm -rf android/.gradle
+flutter clean` } },
+        { title: 'Phone not detected',
+          note: 'Unlock phone → reconnect USB → switch USB mode to MTP → accept "Allow USB debugging?" → re-run flutter devices.' }
+      ]
+    }
+  ];
+}
+
+/* ============================================================
+   SECTION DEFINITIONS — STRINGER / MY PROJECT
+   ============================================================ */
+function stringerMineSections() {
+  return [
+    { num: '01', icon: 'i-sparkles', title: 'Initial Project Setup', sub: 'one-time install',
+      steps: [
+        { title: 'Create the Expo project',
+          code: { lang: 'bash', text: `npx create-expo-app@latest stringer-app --template blank-typescript
+cd stringer-app` } },
+        { title: 'Install routing',
+          code: { lang: 'bash', text: `npx expo install expo-router react-native-safe-area-context react-native-screens` } },
+        { title: 'Install NativeWind (Tailwind for RN)',
+          code: { lang: 'bash', text: `npm install nativewind --legacy-peer-deps
+npm install --save-dev tailwindcss@3.3.2 --legacy-peer-deps
+npx tailwindcss init` } },
+        { title: 'Install animation engine (required by NativeWind v4)',
+          code: { lang: 'bash', text: `npx expo install react-native-reanimated react-native-worklets` } },
+        { title: 'Storage, networking, auth',
+          code: { lang: 'bash', text: `npx expo install @react-native-async-storage/async-storage
+npm install axios jwt-decode --legacy-peer-deps
+npm install base-64 --legacy-peer-deps
+npm install --save-dev @types/base-64 --legacy-peer-deps` } },
+        { title: 'File pickers and media',
+          code: { lang: 'bash', text: `npx expo install expo-image-picker expo-document-picker expo-media-library
+npx expo install expo-file-system expo-sharing` } },
+        { title: 'Icons, state, env',
+          code: { lang: 'bash', text: `npm install lucide-react-native --legacy-peer-deps
+npm install @tanstack/react-query --legacy-peer-deps
+npm install --save-dev react-native-dotenv --legacy-peer-deps` } },
+        { title: 'Pin Expo SDK 54 toolchain',
+          warn: 'Important — without this, RN/Babel builds break.',
+          code: { lang: 'bash', text: `npm install --save-dev babel-preset-expo@~54.0.10 --legacy-peer-deps` } },
+        { title: 'Build optimization plugin',
+          note: 'Added later for smaller APKs (Hermes + ProGuard).',
+          code: { lang: 'bash', text: `npx expo install expo-build-properties` } }
+      ]
+    },
+    { num: '02', icon: 'i-zap', title: 'Daily Development', sub: 'dev server & phone',
+      steps: [
+        { title: 'Start dev server (LAN — phone + Mac on same WiFi)',
+          code: { lang: 'bash', text: `npx expo start --clear` } },
+        { title: 'Start in tunnel mode (different networks)',
+          code: { lang: 'bash', text: `npx expo start --tunnel --clear` } },
+        { title: 'Force-clear all caches if anything weird happens',
+          code: { lang: 'bash', text: `rm -rf node_modules/.cache .expo
+npx expo start --clear` } },
+        { title: 'Server keyboard shortcuts',
+          code: { lang: 'log', text: `r    reload app on phone
+j    open debugger
+m    toggle dev menu
+a    open Android emulator
+?    show all commands` } },
+        { title: 'Phone setup for testing',
+          code: { lang: 'log', text: `1. Install "Expo Go" app on Android phone
+2. Force-close Expo Go (swipe from recents)
+3. Reopen → scan QR code shown in terminal
+4. Wait ~30–90s for first bundle (faster after)
+5. App opens on phone` } }
+      ]
+    },
+    { num: '03', icon: 'i-life-buoy', title: 'Troubleshooting', sub: 'when things break',
+      steps: [
+        { title: 'npm cache is corrupted',
+          code: { lang: 'bash', text: `sudo chown -R $(whoami) ~/.npm
+npm cache clean --force
+sudo rm -rf ~/.npm/_cacache` } },
+        { title: 'Reinstall dependencies fresh',
+          code: { lang: 'bash', text: `rm -rf node_modules package-lock.json
+npm install --legacy-peer-deps` } },
+        { title: 'Find / kill stuck processes',
+          code: { lang: 'bash', text: `lsof -i :8081
+pkill -f "expo start"` } },
+        { title: 'Inspect Expo Router routes',
+          code: { lang: 'bash', text: `find app -type f -name "*.tsx" | sort` } },
+        { title: 'Find biggest packages in node_modules',
+          code: { lang: 'bash', text: `du -sh node_modules/* | sort -hr | head -20` } },
+        { title: 'Get your Mac\'s LAN IP (for phone)',
+          code: { lang: 'bash', text: `ipconfig getifaddr en0` } }
+      ]
+    },
+    { num: '04', icon: 'i-folder-tree', title: 'File Operations', sub: 'route groups & search',
+      steps: [
+        { title: 'Create directories with parens (route groups in Expo Router)',
+          note: 'Parens require backslash escaping in zsh/bash.',
+          code: { lang: 'bash', text: `mkdir -p app/\\(app\\)/stories
+mkdir -p app/\\(app\\)/lists
+mkdir -p app/\\(app\\)/profile
+mkdir -p app/\\(app\\)/report
+mkdir -p app/\\(app\\)/stories/update
+mkdir -p src/components/form
+mkdir -p src/components/story
+mkdir -p src/services src/context src/hooks src/utils src/types src/config` } },
+        { title: 'Verify directory structure',
+          code: { lang: 'bash', text: `ls -la app/\\(app\\)/
+ls -la app/\\(app\\)/stories/
+ls -la src/services/` } },
+        { title: 'Search code for a string',
+          code: { lang: 'bash', text: `grep -n "useAuth" app/\\(app\\)/dashboard.tsx
+grep -rn "fetchActivities" src/` } }
+      ]
+    },
+    { num: '05', icon: 'i-cloud', title: 'Building APKs with EAS', sub: 'cloud build pipeline',
+      steps: [
+        { title: 'One-time setup',
+          code: { lang: 'bash', text: `npm install -g eas-cli
+eas login
+eas init` } },
+        { title: 'Build APK (preview = unsigned, direct distribution)',
+          code: { lang: 'bash', text: `eas build --platform android --profile preview` } },
+        { title: 'Build with cache cleared (after config changes)',
+          code: { lang: 'bash', text: `eas build --platform android --profile preview --clear-cache` } },
+        { title: 'Production-signed APK',
+          code: { lang: 'bash', text: `eas build --platform android --profile production` } },
+        { title: 'iOS build (requires Apple Developer, $99/yr)',
+          code: { lang: 'bash', text: `eas build --platform ios --profile preview` } },
+        { title: 'Manage builds',
+          code: { lang: 'bash', text: `eas build:list      # list all builds
+eas build:cancel    # cancel stuck build` } },
+        { title: 'Local build (faster, requires Android Studio + JDK)',
+          code: { lang: 'bash', text: `eas build --platform android --profile preview --local` } },
+        { title: 'Bump version for every release',
+          warn: 'Update both fields in app.json: "version": "1.0.1" and "android.versionCode": 2.' }
+      ]
+    },
+    { num: '06', icon: 'i-git-branch', title: 'Git & GitHub',
+      steps: [
+        { title: 'Initialize repo (first time)',
+          code: { lang: 'bash', text: `git init
+git add .
+git commit -m "Initial commit"` } },
+        { title: 'Clean sensitive files',
+          code: { lang: 'bash', text: `git rm --cached .env 2>/dev/null
+git rm -r --cached node_modules 2>/dev/null` } },
+        { title: 'Create .env.example template',
+          code: { lang: 'bash', text: `cat > .env.example << 'EOF'
+API_URL=https://your-api-url-here.com
+CDN_URL=https://your-cdn-url-here.com
+EOF` } },
+        { title: 'Connect to GitHub remote',
+          code: { lang: 'bash', text: `git remote add origin git@github.com:YOUR_USERNAME/REPO_NAME.git
+git branch -M main
+git push -u origin main` } },
+        { title: 'Save credentials in macOS Keychain',
+          code: { lang: 'bash', text: `git config --global credential.helper osxkeychain` } },
+        { title: 'Daily workflow',
+          code: { lang: 'bash', text: `git status
+git add .
+git commit -m "Description"
+git push` } },
+        { title: 'Useful git commands',
+          code: { lang: 'bash', text: `git checkout -- <filename>     # discard local changes
+git log --oneline               # history
+git log --stat HEAD             # last commit with file changes
+git ls-files | head -30         # what git tracks
+git pull origin main` } }
+      ]
+    },
+    { num: '07', icon: 'i-share-2', title: 'Distribute APK to Team',
+      steps: [
+        { title: 'Method 1 — Direct Expo install link',
+          note: 'Expires in 13 days. Get URL from build page on expo.dev → right-click "Install" → copy link.',
+          code: { lang: 'log', text: `Send link via WhatsApp / Slack / Email` } },
+        { title: 'Method 2 — Permanent Google Drive link',
+          code: { lang: 'log', text: `1. Download .apk from Expo build page
+2. Upload to Google Drive
+3. Right-click → Share → "Anyone with link"
+4. Convert to direct-download URL:
+   https://drive.google.com/file/d/FILE_ID/view  →
+   https://drive.google.com/uc?export=download&id=FILE_ID` } },
+        { title: 'Method 3 — WhatsApp the .apk file directly',
+          note: 'WhatsApp accepts .apk files. Recipient taps to download/install.' },
+        { title: 'First-time install on user\'s phone',
+          code: { lang: 'log', text: `1. Tap the link/file
+2. Allow downloads from this source if prompted
+3. Open downloaded .apk
+4. Tap Install (may need to enable "Install unknown apps" in Settings)
+5. Tap Open` } }
+      ]
+    },
+    { num: '08', icon: 'i-server', title: 'Backend / API Notes',
+      steps: [
+        { title: '.env file format',
+          warn: 'NO quotes, NO export prefix.',
+          code: { lang: 'bash', text: `API_URL=https://sppyapi-test.odishatv.in
+CDN_URL=https://spassets.odishatv.in` } },
+        { title: '.env.d.ts (TypeScript types for env vars)',
+          code: { lang: 'typescript', text: `declare module '@env' {
+  export const API_URL: string;
+  export const CDN_URL: string;
+}` } },
+        { title: 'Test backend connectivity',
+          code: { lang: 'bash', text: `curl https://sppyapi-test.odishatv.in/api/health
+curl -I https://sppyapi-test.odishatv.in` } },
+        { title: 'Login API contract',
+          code: { lang: 'log', text: `POST /api/auth/login
+Body: { "data": "<base64-encoded JSON of {username,password}>" }
+Response: { "access_token": "<JWT>" }` } },
+        { title: 'Story status code reference',
+          table: {
+            head: ['Code', 'Meaning'],
+            rows: [
+              ['1', 'Draft'],
+              ['2', 'Waiting in Input'],
+              ['3', 'Waiting in Output'],
+              ['4', 'Rejected'],
+              ['5', 'Published'],
+              ['6', 'Deleted'],
+              ['7', 'Returned to Stringer (from Input)'],
+              ['8', 'Output to Input'],
+              ['9', 'Input WIP'],
+              ['10', 'Output WIP'],
+              ['11', 'Returned to Stringer (from Output)']
+            ]
+          },
+          note: 'Stringers can VIEW: 1, 2, 3, 4, 5, 7, 11. Stringers can EDIT: 1, 7, 11.'
+        }
+      ]
+    },
+    { num: '09', icon: 'i-folder-tree', title: 'Project Structure',
+      steps: [
+        { title: 'Directory layout',
+          code: { lang: 'log', text: `stringer-app/
+├── app/                          # Expo Router file-based routing
+│   ├── _layout.tsx              # Root layout (providers, NativeWind)
+│   ├── index.tsx                # Splash redirect
+│   ├── splash.tsx               # Animated splash
+│   ├── (auth)/                  # Auth route group
+│   │   ├── _layout.tsx
+│   │   └── login.tsx
+│   └── (app)/                   # Protected route group
+│       ├── _layout.tsx          # withAuth wrapper
+│       ├── dashboard.tsx
+│       ├── lists/[type].tsx
+│       ├── stories/
+│       │   ├── create.tsx
+│       │   ├── [id].tsx
+│       │   └── update/[id].tsx
+│       ├── profile/index.tsx
+│       └── report/index.tsx
+├── src/
+│   ├── components/              # Reusable UI components
+│   ├── context/                 # React contexts (Auth, Counts)
+│   ├── hooks/                   # useAuth, useDownloadManager
+│   ├── hoc/                     # withAuth HOC
+│   ├── services/                # API service modules
+│   ├── utils/                   # Helpers (storage, alert, dates)
+│   ├── types/                   # TS type definitions
+│   └── config/                  # Environment config
+├── assets/                      # Icon, splash, adaptive icons
+├── .env                         # ⚠ NEVER commit
+├── .env.example                 # Template for teammates
+├── .env.d.ts                    # TS types for @env
+├── .gitignore
+├── .npmrc                       # legacy-peer-deps=true
+├── app.json                     # Expo config
+├── babel.config.js              # Babel + reanimated plugin
+├── eas.json                     # EAS Build profiles
+├── global.css                   # Tailwind directives
+├── metro.config.js              # Metro + NativeWind
+├── nativewind-env.d.ts          # NativeWind types
+├── package.json
+├── tailwind.config.js
+└── tsconfig.json` } }
+      ]
+    },
+    { num: '10', icon: 'i-bug', title: 'Common Errors & Fixes',
+      steps: [
+        { title: '"Cannot find module react-native-worklets/plugin"',
+          code: { lang: 'bash', text: `npx expo install react-native-worklets` } },
+        { title: '"Cannot find module react-native-reanimated"',
+          note: 'After installing, add react-native-reanimated/plugin as the LAST plugin in babel.config.js.',
+          code: { lang: 'bash', text: `npx expo install react-native-reanimated` } },
+        { title: '"btoa is not defined"',
+          code: { lang: 'bash', text: `npm install base-64 --legacy-peer-deps
+# Use base-64 lib instead of native btoa()` } },
+        { title: '"Attempted to navigate before mounting Root Layout"',
+          warn: 'Replace useEffect + router.replace() with the <Redirect> component from expo-router.' },
+        { title: '"Unmatched Route" / "Page could not be found"',
+          code: { lang: 'bash', text: `# File doesn't exist at the expected path
+ls app/\\(app\\)/stories/
+# Then create with touch + paste content` } },
+        { title: 'CSS classes not applying (NativeWind broken)',
+          code: { lang: 'bash', text: `# Verify global.css is imported FIRST in app/_layout.tsx
+grep -n "global.css" app/_layout.tsx
+
+# Verify metro.config.js has withNativeWind
+grep -n "nativewind/metro" metro.config.js` } },
+        { title: '"documentDirectory does not exist on type"',
+          code: { lang: 'typescript', text: `// Use legacy import for expo-file-system
+import * as FileSystem from 'expo-file-system/legacy';` } },
+        { title: 'Stuck at "Building 100%"',
+          note: 'Force-close Expo Go on phone, reopen, scan QR fresh.' },
+        { title: 'TypeScript: "Property X does not exist on type {}"',
+          code: { lang: 'typescript', text: `const data: any = response.data;` } },
+        { title: 'Bundle size too big (>50MB)',
+          warn: 'Add expo-build-properties to app.json plugins. Enable Hermes ("jsEngine": "hermes"), ProGuard, and resource shrinking. Build with --clear-cache.' }
+      ]
+    },
+    { num: '11', icon: 'i-flask-conical', title: 'Verification Tests',
+      steps: [
+        { title: 'Verify required dependencies installed',
+          code: { lang: 'bash', text: `ls node_modules | grep -E "babel-preset-expo|react-native-worklets|nativewind|base-64|react-native-reanimated"` } },
+        { title: 'Verify .env loaded correctly',
+          code: { lang: 'bash', text: `cat .env` } },
+        { title: 'Verify NativeWind setup',
+          code: { lang: 'bash', text: `grep -n "global.css" app/_layout.tsx
+grep -n "nativewind/metro" metro.config.js` } },
+        { title: 'Verify all routes exist',
+          code: { lang: 'bash', text: `find app -type f -name "*.tsx" | sort` } },
+        { title: 'Check what\'s tracked in git',
+          code: { lang: 'bash', text: `git ls-files
+git status --ignored` } }
+      ]
+    },
+    { num: '12', icon: 'i-link', title: 'Quick Reference URLs',
+      steps: [
+        { title: 'Documentation',
+          table: {
+            head: ['Resource', 'URL'],
+            rows: [
+              ['Expo dashboard', 'https://expo.dev'],
+              ['Expo docs', 'https://docs.expo.dev'],
+              ['EAS Build docs', 'https://docs.expo.dev/build/introduction/'],
+              ['NativeWind docs', 'https://www.nativewind.dev'],
+              ['Tailwind classes', 'https://tailwindcss.com/docs'],
+              ['Lucide icons', 'https://lucide.dev/icons/']
+            ]
+          }
+        },
+        { title: 'Project endpoints',
+          table: {
+            head: ['Resource', 'URL'],
+            rows: [
+              ['GitHub repo', 'git@github.com:priy437pradhan/Supperapp-reactnative.git'],
+              ['Backend API', 'https://sppyapi-test.odishatv.in'],
+              ['CDN', 'https://spassets.odishatv.in']
+            ]
+          }
+        }
+      ]
+    },
+    { num: '13', icon: 'i-check-check', title: 'Ship Checklist (every release)',
+      steps: [
+        { title: 'Pre-flight',
+          checklist: [
+            'All features tested in Expo Go',
+            '.env points to production API',
+            'Bumped versionCode in app.json (1 → 2 → 3...)',
+            'Bumped version string in app.json (1.0.0 → 1.0.1)',
+            'Committed all changes to git',
+            'Pushed to GitHub: git push',
+            'Built new APK: eas build --platform android --profile preview --clear-cache',
+            'Downloaded APK',
+            'Tested install on phone (uninstall old version first if ProGuard\'d)',
+            'Tested critical flows: login, create story, threads, downloads, report',
+            'Shared APK link/file with team'
+          ]
+        }
+      ]
+    }
+  ];
+}
+
+/* ============================================================
+   SECTION DEFINITIONS — STRINGER / GENERIC EXPO+RN
+   ============================================================ */
+function stringerGenericSections() {
+  return [
+    { num: '01', icon: 'i-sparkles', title: 'Bootstrap an Expo App',
+      steps: [
+        { title: 'Create + enter project',
+          code: { lang: 'bash', text: `npx create-expo-app@latest <app-name> --template blank-typescript
+cd <app-name>` } },
+        { title: 'Routing',
+          code: { lang: 'bash', text: `npx expo install expo-router react-native-safe-area-context react-native-screens` } }
+      ]
+    },
+    { num: '02', icon: 'i-palette', title: 'Styling with NativeWind (Tailwind for RN)',
+      steps: [
+        { title: 'Install NativeWind + Tailwind',
+          code: { lang: 'bash', text: `npm install nativewind --legacy-peer-deps
+npm install --save-dev tailwindcss@3.3.2 --legacy-peer-deps
+npx tailwindcss init` } },
+        { title: 'Animation engine (NativeWind v4 requirement)',
+          code: { lang: 'bash', text: `npx expo install react-native-reanimated react-native-worklets` } },
+        { title: 'Wire up metro.config.js',
+          code: { lang: 'js', text: `// metro.config.js
+const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
+
+const config = getDefaultConfig(__dirname);
+module.exports = withNativeWind(config, { input: './global.css' });` } }
+      ]
+    },
+    { num: '03', icon: 'i-database', title: 'Common App Dependencies',
+      steps: [
+        { title: 'Storage / network / auth',
+          code: { lang: 'bash', text: `npx expo install @react-native-async-storage/async-storage
+npm install axios jwt-decode --legacy-peer-deps
+npm install base-64 --legacy-peer-deps
+npm install --save-dev @types/base-64 --legacy-peer-deps` } },
+        { title: 'Files / media',
+          code: { lang: 'bash', text: `npx expo install expo-image-picker expo-document-picker expo-media-library
+npx expo install expo-file-system expo-sharing` } },
+        { title: 'Icons / state / env',
+          code: { lang: 'bash', text: `npm install lucide-react-native --legacy-peer-deps
+npm install @tanstack/react-query --legacy-peer-deps
+npm install --save-dev react-native-dotenv --legacy-peer-deps` } },
+        { title: 'Pin Babel preset for current Expo SDK',
+          warn: 'Replace ~54.0.10 with the version matching your Expo SDK.',
+          code: { lang: 'bash', text: `npm install --save-dev babel-preset-expo@~<version> --legacy-peer-deps` } }
+      ]
+    },
+    { num: '04', icon: 'i-zap', title: 'Daily Development',
+      steps: [
+        { title: 'Start dev server',
+          code: { lang: 'bash', text: `# LAN (same WiFi)
+npx expo start --clear
+
+# Tunnel (different networks)
+npx expo start --tunnel --clear` } },
+        { title: 'Force-clear caches',
+          code: { lang: 'bash', text: `rm -rf node_modules/.cache .expo
+npx expo start --clear` } },
+        { title: 'Server keys',
+          code: { lang: 'log', text: `r  reload   j  debugger   m  dev menu   a  emulator   ?  help` } }
+      ]
+    },
+    { num: '05', icon: 'i-life-buoy', title: 'Troubleshooting',
+      steps: [
+        { title: 'Reinstall fresh',
+          code: { lang: 'bash', text: `rm -rf node_modules package-lock.json
+npm install --legacy-peer-deps` } },
+        { title: 'Find / kill stuck Metro',
+          code: { lang: 'bash', text: `lsof -i :8081
+pkill -f "expo start"` } },
+        { title: 'Inspect package sizes',
+          code: { lang: 'bash', text: `du -sh node_modules/* | sort -hr | head -20` } },
+        { title: 'List all routes Expo Router will discover',
+          code: { lang: 'bash', text: `find app -type f -name "*.tsx" | sort` } }
+      ]
+    },
+    { num: '06', icon: 'i-cloud', title: 'EAS Build & Distribution',
+      steps: [
+        { title: 'One-time setup',
+          code: { lang: 'bash', text: `npm install -g eas-cli
+eas login
+eas init` } },
+        { title: 'Build profiles',
+          code: { lang: 'bash', text: `# Preview (unsigned, internal distribution)
+eas build --platform android --profile preview
+
+# Production (signed)
+eas build --platform android --profile production
+
+# iOS (requires Apple Developer)
+eas build --platform ios --profile preview` } },
+        { title: 'Manage builds',
+          code: { lang: 'bash', text: `eas build:list
+eas build:cancel` } },
+        { title: 'Bump versions before each release',
+          warn: 'Update both "version" and "android.versionCode" in app.json.' }
+      ]
+    },
+    { num: '07', icon: 'i-git-branch', title: 'Git Hygiene',
+      steps: [
+        { title: 'Initialize and connect',
+          code: { lang: 'bash', text: `git init && git add . && git commit -m "Initial commit"
+git remote add origin git@github.com:<user>/<repo>.git
+git branch -M main
+git push -u origin main` } },
+        { title: 'Remove sensitive files from tracking',
+          code: { lang: 'bash', text: `git rm --cached .env 2>/dev/null
+git rm -r --cached node_modules 2>/dev/null` } },
+        { title: 'Save credentials (macOS)',
+          code: { lang: 'bash', text: `git config --global credential.helper osxkeychain` } }
+      ]
+    },
+    { num: '08', icon: 'i-bug', title: 'Common RN/Expo Errors',
+      steps: [
+        { title: 'Reanimated / worklets missing',
+          code: { lang: 'bash', text: `npx expo install react-native-reanimated react-native-worklets
+# Add 'react-native-reanimated/plugin' as LAST plugin in babel.config.js` } },
+        { title: 'btoa is not defined',
+          code: { lang: 'bash', text: `npm install base-64 --legacy-peer-deps` } },
+        { title: 'Navigate before mounting Root Layout',
+          warn: 'Use <Redirect> from expo-router instead of useEffect + router.replace().' },
+        { title: 'Bundle size too big',
+          warn: 'Add expo-build-properties; enable Hermes + ProGuard + resource shrinking; build with --clear-cache.' }
+      ]
+    }
+  ];
+}
+
+/* ============================================================
+   SECTION DEFINITIONS — FULLSTACK / MY PROJECT (Next + Prisma + Neon + Vercel)
+   ============================================================ */
+function fullstackMineSections() {
+  return [
+    { num: '01', icon: 'i-rocket', title: 'First-Time Project Setup', sub: 'one-time per project',
+      steps: [
+        { title: 'Navigate to projects folder',
+          code: { lang: 'bash', text: `cd ~/Desktop/my-practice` } },
+        { title: 'Create a new Next.js project (interactive prompts)',
+          code: { lang: 'bash', text: `npx create-next-app@latest my-project-name
+cd my-project-name` } },
+        { title: 'Install database / auth dependencies',
+          code: { lang: 'bash', text: `npm install @prisma/client bcryptjs jose
+npm install -D prisma tsx @types/bcryptjs` } },
+        { title: 'Initialize Prisma',
+          note: 'Creates prisma/schema.prisma + .env file.',
+          code: { lang: 'bash', text: `npx prisma init` } },
+        { title: 'Open in VS Code',
+          code: { lang: 'bash', text: `code .` } },
+        { title: 'What each package does',
+          table: {
+            head: ['Package', 'Purpose'],
+            rows: [
+              ['@prisma/client', 'Database query library'],
+              ['bcryptjs', 'Password hashing for security'],
+              ['jose', 'JWT token creation for login sessions'],
+              ['prisma', 'Database schema management tool'],
+              ['tsx', 'Runs TypeScript files directly (used for seeds)'],
+              ['@types/bcryptjs', 'TypeScript type definitions']
+            ]
+          }
+        }
+      ]
+    },
+    { num: '02', icon: 'i-zap', title: 'Daily Development', sub: 'every-day workflow',
+      steps: [
+        { title: 'Always start by going to your project folder',
+          code: { lang: 'bash', text: `cd ~/Desktop/my-practice/my-project-name
+pwd` } },
+        { title: 'Start the dev server',
+          note: 'Live reload at localhost:3000. Stop with Ctrl+C.',
+          code: { lang: 'bash', text: `npm run dev` } },
+        { title: 'Check what files changed',
+          code: { lang: 'bash', text: `git status` } },
+        { title: 'Open Prisma Studio (visual DB editor)',
+          note: 'Runs at localhost:5555 — browse and edit data visually.',
+          code: { lang: 'bash', text: `npx prisma studio` } },
+        { title: 'Two-terminal pattern',
+          warn: 'Terminal 1 keeps "npm run dev" running. Terminal 2 runs git, prisma, and everything else.' }
+      ]
+    },
+    { num: '03', icon: 'i-database', title: 'Database (Prisma) Commands', sub: 'schema migrations',
+      steps: [
+        { title: 'Schema change workflow — run BOTH after editing schema.prisma',
+          code: { lang: 'bash', text: `# 1. Create migration file + apply to database
+npx prisma migrate dev --name describe_what_changed
+
+# 2. Regenerate Prisma Client so your code knows the new fields
+npx prisma generate` } },
+        { title: 'Examples of good migration names',
+          code: { lang: 'bash', text: `npx prisma migrate dev --name add_user_table
+npx prisma migrate dev --name add_logo_url_to_settings
+npx prisma migrate dev --name make_email_optional` } },
+        { title: 'Quick prototyping — push schema without migration files',
+          note: 'Use this when you don\'t care about migration history.',
+          code: { lang: 'bash', text: `npx prisma db push` } },
+        { title: 'Force-reset database',
+          danger: 'DELETES ALL DATA.',
+          code: { lang: 'bash', text: `npx prisma db push --force-reset` } },
+        { title: 'Run seed file',
+          code: { lang: 'bash', text: `npx prisma db seed
+
+# Or run any TS file in /prisma directly
+npx tsx prisma/seed.ts
+npx tsx prisma/init-settings.ts` } },
+        { title: 'Migration status & resolution',
+          code: { lang: 'bash', text: `# Check if database matches your migrations
+npx prisma migrate status
+
+# Mark a migration as already applied (when tables exist but Prisma doesn't know)
+npx prisma migrate resolve --applied "20260429064446_init"` } },
+        { title: 'Reset everything',
+          danger: 'DELETES ALL DATA.',
+          code: { lang: 'bash', text: `npx prisma migrate reset --force` } },
+        { title: 'Pull current DB structure into schema.prisma',
+          danger: 'OVERWRITES your schema.prisma file.',
+          code: { lang: 'bash', text: `npx prisma db pull` } }
+      ]
+    },
+    { num: '04', icon: 'i-git-branch', title: 'Git & GitHub', sub: 'save & push work',
+      steps: [
+        { title: 'Standard save workflow — run often',
+          code: { lang: 'bash', text: `git status
+git add .
+git commit -m "Add cart functionality"
+git push` } },
+        { title: 'One-time setup for new repo',
+          code: { lang: 'bash', text: `git init
+git remote add origin https://github.com/yourusername/repo-name.git
+git branch -M main
+git push -u origin main` } },
+        { title: 'Inspect changes & history',
+          code: { lang: 'bash', text: `git status
+git log --oneline -10` } },
+        { title: 'When GitHub has newer code than local',
+          code: { lang: 'bash', text: `git pull --rebase` } },
+        { title: 'Push got rejected — force push (carefully)',
+          warn: 'Use --force-with-lease, never --force, to avoid overwriting teammates\' commits.',
+          code: { lang: 'bash', text: `git push --force-with-lease` } },
+        { title: 'Stuck mid-rebase? Cancel it',
+          code: { lang: 'bash', text: `git rebase --abort` } },
+        { title: 'Stuck in detached HEAD? Go back to main',
+          code: { lang: 'bash', text: `git checkout main` } },
+        { title: 'Restore one file from an old commit',
+          code: { lang: 'bash', text: `git checkout <commit-hash> -- path/to/file.tsx` } },
+        { title: 'Change the GitHub remote URL',
+          code: { lang: 'bash', text: `git remote remove origin
+git remote add origin https://github.com/username/new-repo.git
+git remote -v` } }
+      ]
+    },
+    { num: '05', icon: 'i-cloud', title: 'Vercel Deployment', sub: 'env vars + build script',
+      steps: [
+        { title: 'One-time setup',
+          code: { lang: 'bash', text: `# Optional — deploys via GitHub work too
+npm install -g vercel
+
+# Link local project to Vercel
+vercel link
+
+# Manually deploy (auto-deploys on git push)
+vercel --prod` } },
+        { title: 'Required environment variables',
+          note: 'Vercel dashboard → Settings → Environment Variables.',
+          table: {
+            head: ['Variable', 'Value'],
+            rows: [
+              ['DATABASE_URL', 'Your full Neon postgresql:// URL'],
+              ['JWT_SECRET', 'Any long random string']
+            ]
+          }
+        },
+        { title: 'Build script patterns (in package.json)',
+          code: { lang: 'js', text: `// For projects with proper migrations:
+"build": "prisma migrate deploy && prisma generate && next build"
+
+// For projects using db push (skip migrations):
+"build": "prisma generate && next build"` } }
+      ]
+    },
+    { num: '06', icon: 'i-bug', title: 'Common Bug Fixes', sub: 'real solutions for real problems',
+      steps: [
+        { title: '"Can\'t reach database server" (P1001)',
+          warn: 'Neon free tier sleeps the database. Wait 30 seconds and retry.',
+          code: { lang: 'bash', text: `# Verify DATABASE_URL is correct
+grep DATABASE_URL .env` } },
+        { title: 'Migration drift (database out of sync) — Option 1: full reset',
+          danger: 'Loses all data.',
+          code: { lang: 'bash', text: `npx prisma migrate reset --force` } },
+        { title: 'Migration drift — Option 2: mark as applied',
+          code: { lang: 'bash', text: `npx prisma migrate resolve --applied "20260429064446_init"` } },
+        { title: 'Migration drift — Option 3: force-sync schema',
+          code: { lang: 'bash', text: `npx prisma db push --force-reset` } },
+        { title: '"Module not found" after pulling code',
+          code: { lang: 'bash', text: `rm -rf node_modules .next package-lock.json
+npm install` } },
+        { title: 'Tailwind not loading',
+          code: { lang: 'bash', text: `npm install tailwindcss @tailwindcss/postcss postcss --save-dev
+cat postcss.config.mjs` } },
+        { title: 'TypeScript errors that look wrong',
+          note: 'In VS Code: Cmd+Shift+P → "TypeScript: Restart TS Server". Or regenerate Prisma types.',
+          code: { lang: 'bash', text: `npx prisma generate` } },
+        { title: 'Port 3000 already in use',
+          code: { lang: 'bash', text: `# Find and kill the process
+lsof -ti:3000 | xargs kill -9
+
+# Or use a different port
+npm run dev -- -p 3001` } }
+      ]
+    },
+    { num: '07', icon: 'i-file-pen-line', title: 'File Editing via Terminal', sub: 'when VS Code misbehaves',
+      steps: [
+        { title: 'Create a file with content (heredoc)',
+          code: { lang: 'bash', text: `cat > path/to/file.tsx << 'EOF'
+your code here
+multiple lines fine
+EOF` } },
+        { title: 'View file contents',
+          code: { lang: 'bash', text: `cat path/to/file.tsx           # whole file
+head -20 path/to/file.tsx      # first 20 lines
+tail -20 path/to/file.tsx      # last 20 lines
+sed -n '50,70p' file.tsx       # lines 50 through 70` } },
+        { title: 'Search for text in files',
+          code: { lang: 'bash', text: `grep -rn "searchterm" .                 # current folder
+grep -n "searchterm" file.tsx           # specific file
+grep -n "searchterm" app/api/*.ts       # multiple files` } },
+        { title: 'Replace text (Mac sed syntax)',
+          warn: 'Note the empty quotes after -i — required on macOS.',
+          code: { lang: 'bash', text: `sed -i '' 's/old text/new text/g' file.tsx
+
+# Update a build script in package.json
+sed -i '' 's|"build": "old"|"build": "new"|' package.json` } },
+        { title: 'Edit in nano (sometimes safer than VS Code)',
+          code: { lang: 'log', text: `nano .env
+# Save:  Ctrl + X, then Y, then Enter
+# Exit without saving: Ctrl + X, then N` } },
+        { title: 'Delete files / folders',
+          code: { lang: 'bash', text: `rm file.tsx                    # delete one file
+rm -rf folder-name             # delete folder + everything inside
+rm -rf node_modules .next      # common cleanup` } }
+      ]
+    },
+    { num: '08', icon: 'i-keyboard', title: 'Useful Shortcuts', sub: 'terminal / vscode / devtools',
+      steps: [
+        { title: 'Terminal (Mac)',
+          table: {
+            head: ['Shortcut', 'What it does'],
+            rows: [
+              ['Ctrl + C', 'Stop a running command'],
+              ['Ctrl + L', 'Clear terminal screen'],
+              ['Cmd + T', 'New terminal tab'],
+              ['↑ arrow', 'Previous command'],
+              ['Tab', 'Auto-complete file/folder name'],
+              ['Cmd + K', 'Clear scrollback']
+            ]
+          }
+        },
+        { title: 'VS Code',
+          table: {
+            head: ['Shortcut', 'What it does'],
+            rows: [
+              ['Cmd + S', 'Save file'],
+              ['Cmd + P', 'Quick file search'],
+              ['Cmd + Shift + P', 'Command palette'],
+              ['Cmd + F', 'Find in current file'],
+              ['Cmd + Shift + F', 'Find in all files'],
+              ['Cmd + B', 'Toggle sidebar'],
+              ['Cmd + J', 'Toggle terminal'],
+              ['Cmd + /', 'Comment/uncomment line']
+            ]
+          }
+        },
+        { title: 'Browser DevTools',
+          table: {
+            head: ['Shortcut', 'What it does'],
+            rows: [
+              ['Cmd + Option + I', 'Open DevTools'],
+              ['Cmd + Option + J', 'Open Console'],
+              ['Cmd + Shift + R', 'Hard refresh (clear cache)']
+            ]
+          }
+        }
+      ]
+    },
+    { num: '09', icon: 'i-zap', title: 'New Project From Scratch (2 Minutes)', sub: 'copy-paste-ready',
+      steps: [
+        { title: 'Full setup script',
+          code: { lang: 'bash', text: `# 1. Setup
+cd ~/Desktop/my-practice
+npx create-next-app@latest my-new-project
+cd my-new-project
+
+# 2. Install dependencies
+npm install @prisma/client bcryptjs jose
+npm install -D prisma tsx @types/bcryptjs
+
+# 3. Initialize Prisma
+npx prisma init
+
+# 4. Edit .env with your Neon DATABASE_URL
+#    (open in VS Code or nano)
+
+# 5. Edit prisma/schema.prisma with your models
+
+# 6. Create database
+npx prisma migrate dev --name init
+npx prisma generate
+
+# 7. Start coding
+code .
+npm run dev` } }
+      ]
+    },
+    { num: '10', icon: 'i-life-buoy', title: 'Debug Order — When Things Break', sub: 'fresh-eyes checklist',
+      steps: [
+        { title: 'Walk through these in order',
+          checklist: [
+            'Read the error message — really read it. The answer is usually there',
+            'Check the URL/path — typos cause 80% of bugs',
+            'Check .env — is DATABASE_URL correct? Starts with postgresql://',
+            'Restart dev server — Ctrl+C, then npm run dev again',
+            'Restart VS Code TS server — Cmd+Shift+P → "TypeScript: Restart TS Server"',
+            'Run npx prisma generate — types may be stale',
+            'Run npm install — dependencies may be missing',
+            'Check git status — did you accidentally delete or modify something?',
+            'Check Vercel logs — for production-only bugs',
+            'Take a 5-minute break — fresh eyes solve bugs faster than tired ones'
+          ]
+        }
+      ]
+    },
+    { num: '11', icon: 'i-link', title: 'Resources',
+      steps: [
+        { title: 'Documentation',
+          table: {
+            head: ['Resource', 'URL'],
+            rows: [
+              ['JavaScript fundamentals', 'https://javascript.info'],
+              ['React docs', 'https://react.dev'],
+              ['Next.js docs', 'https://nextjs.org/docs'],
+              ['Prisma docs', 'https://www.prisma.io/docs'],
+              ['Tailwind docs', 'https://tailwindcss.com/docs'],
+              ['Neon docs', 'https://neon.tech/docs']
+            ]
+          }
+        }
+      ]
+    }
+  ];
+}
+
+/* ============================================================
+   SECTION DEFINITIONS — FULLSTACK / GENERIC NEXT+PRISMA
+   ============================================================ */
+function fullstackGenericSections() {
+  return [
+    { num: '01', icon: 'i-sparkles', title: 'Bootstrap a Next.js Project',
+      steps: [
+        { title: 'Create + enter project',
+          code: { lang: 'bash', text: `npx create-next-app@latest <project-name>
+cd <project-name>` } }
+      ]
+    },
+    { num: '02', icon: 'i-database', title: 'Add Prisma + Auth Dependencies',
+      steps: [
+        { title: 'Install runtime packages',
+          code: { lang: 'bash', text: `npm install @prisma/client bcryptjs jose` } },
+        { title: 'Install dev tools',
+          code: { lang: 'bash', text: `npm install -D prisma tsx @types/bcryptjs` } },
+        { title: 'Initialize Prisma',
+          code: { lang: 'bash', text: `npx prisma init` } }
+      ]
+    },
+    { num: '03', icon: 'i-zap', title: 'Daily Workflow',
+      steps: [
+        { title: 'Run the dev server',
+          code: { lang: 'bash', text: `npm run dev    # localhost:3000
+# Ctrl+C to stop` } },
+        { title: 'Visual DB editor',
+          code: { lang: 'bash', text: `npx prisma studio    # localhost:5555` } }
+      ]
+    },
+    { num: '04', icon: 'i-git-merge', title: 'Schema Migrations',
+      steps: [
+        { title: 'After editing prisma/schema.prisma',
+          code: { lang: 'bash', text: `npx prisma migrate dev --name <descriptive_name>
+npx prisma generate` } },
+        { title: 'Quick prototyping (no migration history)',
+          code: { lang: 'bash', text: `npx prisma db push` } },
+        { title: 'Reset (deletes all data)',
+          danger: 'Wipes the database.',
+          code: { lang: 'bash', text: `npx prisma migrate reset --force` } }
+      ]
+    },
+    { num: '05', icon: 'i-git-branch', title: 'Git & GitHub',
+      steps: [
+        { title: 'First-time push',
+          code: { lang: 'bash', text: `git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/<user>/<repo>.git
+git branch -M main
+git push -u origin main` } },
+        { title: 'Daily save',
+          code: { lang: 'bash', text: `git status
+git add .
+git commit -m "<message>"
+git push` } }
+      ]
+    },
+    { num: '06', icon: 'i-cloud', title: 'Vercel Deployment',
+      steps: [
+        { title: 'CLI link & deploy',
+          code: { lang: 'bash', text: `npm install -g vercel
+vercel link
+vercel --prod` } },
+        { title: 'Required env vars',
+          table: {
+            head: ['Variable', 'Value'],
+            rows: [
+              ['DATABASE_URL', 'Your Neon postgresql:// URL'],
+              ['JWT_SECRET', 'Any long random string']
+            ]
+          }
+        },
+        { title: 'Build script in package.json',
+          code: { lang: 'js', text: `"build": "prisma migrate deploy && prisma generate && next build"` } }
+      ]
+    },
+    { num: '07', icon: 'i-bug', title: 'Common Issues',
+      steps: [
+        { title: 'Module not found after pulling code',
+          code: { lang: 'bash', text: `rm -rf node_modules .next package-lock.json
+npm install` } },
+        { title: 'Port 3000 in use',
+          code: { lang: 'bash', text: `lsof -ti:3000 | xargs kill -9
+# or
+npm run dev -- -p 3001` } },
+        { title: 'TS errors that look wrong',
+          code: { lang: 'bash', text: `npx prisma generate
+# Then in VS Code: Cmd+Shift+P → "TypeScript: Restart TS Server"` } },
+        { title: 'Migration drift',
+          code: { lang: 'bash', text: `# nuke and reapply
+npx prisma migrate reset --force
+
+# or mark applied without running
+npx prisma migrate resolve --applied "<migration_folder>"` } }
+      ]
+    },
+    { num: '08', icon: 'i-rocket', title: 'New Project — One-Shot Script',
+      steps: [
+        { title: 'Copy-paste everything',
+          code: { lang: 'bash', text: `npx create-next-app@latest <project>
+cd <project>
+
+npm install @prisma/client bcryptjs jose
+npm install -D prisma tsx @types/bcryptjs
+
+npx prisma init
+
+# fill in DATABASE_URL in .env
+# define your models in prisma/schema.prisma
+
+npx prisma migrate dev --name init
+npx prisma generate
+
+code .
+npm run dev` } }
+      ]
+    }
+  ];
+}
+
+/* ============================================================
+   RENDERING — build the DOM from PROJECTS
+   ============================================================ */
+const STATE = {
+  project: 'otv',
+  version: 'mine',
+  searchTerm: ''
+};
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+/* lightweight bash/dart/ts highlighter */
+function highlight(text, lang) {
+  let s = escapeHtml(text);
+  // comments first, line by line
+  s = s.split('\n').map(line => {
+    if (lang === 'bash' || lang === 'log') {
+      // # comment at start of line OR after whitespace
+      const m = line.match(/^(\s*)(#.*)$/);
+      if (m) return m[1] + '<span class="t-cmt">' + m[2] + '</span>';
+    }
+    if (lang === 'dart' || lang === 'js' || lang === 'typescript') {
+      const m = line.match(/^(\s*)(\/\/.*)$/);
+      if (m) return m[1] + '<span class="t-cmt">' + m[2] + '</span>';
+    }
+    return line;
+  }).join('\n');
+
+  if (lang === 'bash') {
+    // strings (single + double quoted)
+    s = s.replace(/(&#39;[^&]*?&#39;)/g, '<span class="t-str">$1</span>');
+    s = s.replace(/(&quot;[^&]*?&quot;)/g, '<span class="t-str">$1</span>');
+    // flags  --foo  -d
+    s = s.replace(/(\s)(--?[a-zA-Z][\w-]*)/g, '$1<span class="t-flag">$2</span>');
+    // common cmds at start of line
+    s = s.replace(/(^|\n)(flutter|npx|npm|sed|grep|git|rm|cd|cat|adb|keytool|find|ls|java|curl|sudo|lsof|pkill|du|chown|mkdir|echo|eas|ipconfig)\b/g,
+      '$1<span class="t-cmd">$2</span>');
+  } else if (lang === 'log') {
+    s = s.replace(/(&#39;[^&]*?&#39;)/g, '<span class="t-str">$1</span>');
+    s = s.replace(/(&quot;[^&]*?&quot;)/g, '<span class="t-str">$1</span>');
+    s = s.replace(/^([A-Z])\b/gm, '<span class="t-flag">$1</span>');
+  } else if (lang === 'dart' || lang === 'js' || lang === 'typescript') {
+    const kws = /\b(class|extends|const|var|let|final|void|override|return|import|package|super|new|true|false|null|null|export|declare|module|interface|type|function|async|await|if|else|for|while)\b/g;
+    s = s.replace(kws, '<span class="t-key">$1</span>');
+    s = s.replace(/(&quot;[^&]*?&quot;|&#39;[^&]*?&#39;)/g, '<span class="t-str">$1</span>');
+    s = s.replace(/\b(\d+(\.\d+)?)\b/g, '<span class="t-num">$1</span>');
+  }
+
+  return s;
+}
+
+function renderHero(version, project) {
+  return `
+    <div class="hero">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        ${escapeHtml(version.label)} // ${escapeHtml(project.name)}
+      </div>
+      <h1>${escapeHtml(version.title)}</h1>
+      <p>${escapeHtml(version.sub)}</p>
+      <div class="hero-meta">
+        ${project.chips.map(c => `
+          <span class="chip"><i class="${c.i}"></i>${escapeHtml(c.t)}</span>
+        `).join('')}
+      </div>
+      ${project.md ? `
+        <div class="hero-actions">
+          <a href="${project.md}" download class="hero-btn">
+            <i class="i-download"></i>
+            <span>Download .md</span>
+          </a>
+          <a href="${project.md}" target="_blank" class="hero-btn ghost">
+            <i class="i-external-link"></i>
+            <span>View raw</span>
+          </a>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderStep(step, idx) {
+  let html = `<div class="step" data-step>`;
+  html += `<div class="step-label">`;
+  html += `<span class="marker">${String(idx + 1).padStart(2,'0')}</span>`;
+  html += `<strong>${escapeHtml(step.title)}</strong>`;
+  html += `</div>`;
+  if (step.note)    html += `<div class="step-note">${escapeHtml(step.note)}</div>`;
+  if (step.warn)    html += `<div class="step-note warn">${escapeHtml(step.warn)}</div>`;
+  if (step.danger)  html += `<div class="step-note danger">${escapeHtml(step.danger)}</div>`;
+  if (step.code) {
+    html += `
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">${escapeHtml(step.code.lang)}</span>
+          <button class="copy-btn" data-copy>
+            <i class="i-copy"></i><span>Copy</span>
+          </button>
+        </div>
+        <pre data-raw="${encodeURIComponent(step.code.text)}">${highlight(step.code.text, step.code.lang)}</pre>
+      </div>
+    `;
+  }
+  if (step.table) {
+    html += `<div class="table-wrap"><table>`;
+    html += `<thead><tr>${step.table.head.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead>`;
+    html += `<tbody>${step.table.rows.map(r => `<tr>${r.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+    html += `</table></div>`;
+  }
+  if (step.checklist) {
+    html += `<ul class="check-list">${step.checklist.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function renderSection(sec, secIdx) {
+  return `
+    <div class="section ${secIdx === 0 ? 'open' : ''}" data-section data-section-id="${sec.num}">
+      <div class="section-header" data-toggle>
+        <span class="section-num">${escapeHtml(sec.num)}</span>
+        <span class="section-icon"><i class="${sec.icon}"></i></span>
+        <span class="section-title">${escapeHtml(sec.title)}</span>
+        ${sec.sub ? `<span class="section-sub">${escapeHtml(sec.sub)}</span>` : ''}
+        <span class="section-toggle"><i class="i-chevron-right"></i></span>
+      </div>
+      <div class="section-body">
+        <div class="section-body-inner">
+          ${(sec.steps || []).map(renderStep).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTabs(project) {
+  const tabBar = document.getElementById('tabBar');
+  tabBar.innerHTML = Object.entries(project.versions).map(([key, v]) => `
+    <div class="tab ${STATE.version === key ? 'active' : ''}" data-tab="${key}">
+      <i class="${key === 'mine' ? 'i-folder-cog' : 'i-layers'}"></i>
+      <span>${escapeHtml(v.label)}</span>
+      <span class="badge">${escapeHtml(v.badge)}</span>
+    </div>
+  `).join('');
+}
+
+function renderContent() {
+  const project = PROJECTS[STATE.project];
+  const version = project.versions[STATE.version];
+  const content = document.getElementById('content');
+
+  content.innerHTML = `
+    <div class="tab-pane active">
+      ${renderHero(version, project)}
+      ${version.sections.map(renderSection).join('')}
+    </div>
+  `;
+
+  // window title
+  document.getElementById('winTitle').textContent = project.titleSlug;
+  document.getElementById('winPath').textContent = project.path;
+
+  // sidebar section nav
+  renderSectionNav(version.sections);
+
+  // re-attach lucide icons
+  mapIcons(content);
+  mapIcons(document.getElementById('sectionNav'));
+  mapIcons(document.getElementById('tabBar'));
+
+  // re-apply current search
+  if (STATE.searchTerm) applySearch(STATE.searchTerm);
+}
+
+function renderSectionNav(sections) {
+  const nav = document.getElementById('sectionNav');
+  nav.innerHTML = sections.map(s => `
+    <div class="section-link" data-jump="${s.num}">
+      <i class="${s.icon}"></i>
+      <span>${escapeHtml(s.title)}</span>
+      <span class="num">${escapeHtml(s.num)}</span>
+    </div>
+  `).join('');
+  document.getElementById('sectionCount').textContent = sections.length;
+}
+
+function renderProjectList() {
+  document.querySelectorAll('.project-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.project === STATE.project);
+  });
+}
+
+/* ============================================================
+   EVENT WIRING
+   ============================================================ */
+function init() {
+  const project = PROJECTS[STATE.project];
+  renderTabs(project);
+  renderContent();
+
+  // project switcher (delegated on sidebar to handle both project lists)
+  document.getElementById('sidebar').addEventListener('click', (e) => {
+    const item = e.target.closest('.project-item');
+    if (!item) return;
+    STATE.project = item.dataset.project;
+    STATE.version = 'mine';
+    STATE.searchTerm = '';
+    document.getElementById('searchInput').value = '';
+    renderProjectList();
+    renderTabs(PROJECTS[STATE.project]);
+    renderContent();
+    closeSidebar();
+  });
+
+  // tab switcher (delegated, since we re-render)
+  document.getElementById('tabBar').addEventListener('click', (e) => {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    STATE.version = tab.dataset.tab;
+    renderTabs(PROJECTS[STATE.project]);
+    renderContent();
+  });
+
+  // section toggle + jump (delegated)
+  document.getElementById('content').addEventListener('click', (e) => {
+    const toggle = e.target.closest('[data-toggle]');
+    if (toggle) {
+      const sec = toggle.closest('[data-section]');
+      sec.classList.toggle('open');
+      return;
+    }
+    const copyBtn = e.target.closest('[data-copy]');
+    if (copyBtn) {
+      const pre = copyBtn.closest('.code-block').querySelector('pre');
+      const raw = decodeURIComponent(pre.dataset.raw || '');
+      navigator.clipboard.writeText(raw).then(() => {
+        copyBtn.classList.add('copied');
+        copyBtn.querySelector('span').textContent = 'Copied';
+        const ic = copyBtn.querySelector('i');
+        ic.classList.remove('icon-copy', 'i-copy');
+        ic.classList.add('icon-check', 'i-check');
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.querySelector('span').textContent = 'Copy';
+          ic.classList.remove('icon-check', 'i-check');
+          ic.classList.add('icon-copy', 'i-copy');
+        }, 1600);
+      });
+    }
+  });
+
+  // section nav jump
+  document.getElementById('sectionNav').addEventListener('click', (e) => {
+    const link = e.target.closest('[data-jump]');
+    if (!link) return;
+    const id = link.dataset.jump;
+    const sec = document.querySelector(`[data-section-id="${id}"]`);
+    if (sec) {
+      sec.classList.add('open');
+      sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    closeSidebar();
+  });
+
+  // theme toggle
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const root = document.documentElement;
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    const icon = document.getElementById('themeIcon');
+    icon.className = next === 'dark' ? 'i-moon icon-moon' : 'i-sun icon-sun';
+    try { localStorage.setItem('devref-theme', next); } catch (e) {}
+  });
+
+  // expand / collapse all
+  let allOpen = false;
+  document.getElementById('expandAllBtn').addEventListener('click', () => {
+    allOpen = !allOpen;
+    document.querySelectorAll('[data-section]').forEach(s => s.classList.toggle('open', allOpen));
+  });
+
+  // search
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', (e) => {
+    STATE.searchTerm = e.target.value.trim().toLowerCase();
+    applySearch(STATE.searchTerm);
+  });
+
+  // ⌘K / Ctrl+K to focus search
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      STATE.searchTerm = '';
+      applySearch('');
+      searchInput.blur();
+    }
+  });
+
+  // mobile menu
+  document.getElementById('menuBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+  });
+  document.getElementById('overlay').addEventListener('click', closeSidebar);
+
+  // restore theme
+  try {
+    const saved = localStorage.getItem('devref-theme');
+    if (saved) {
+      document.documentElement.dataset.theme = saved;
+      const icon = document.getElementById('themeIcon');
+      icon.className = saved === 'dark' ? 'i-moon icon-moon' : 'i-sun icon-sun';
+    }
+  } catch (e) {}
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function applySearch(term) {
+  const noRes = document.getElementById('noResults');
+  const sections = document.querySelectorAll('[data-section]');
+
+  if (!term) {
+    sections.forEach(sec => {
+      sec.classList.remove('hidden', 'search-match');
+      sec.querySelectorAll('[data-step]').forEach(s => s.classList.remove('hidden'));
+      // restore: only first section open by default
+    });
+    // remove highlights
+    document.querySelectorAll('mark.search-hl').forEach(m => {
+      m.outerHTML = m.innerHTML;
+    });
+    noRes.classList.remove('show');
+    return;
+  }
+
+  let anyMatch = false;
+  sections.forEach(sec => {
+    const txt = sec.textContent.toLowerCase();
+    const sectionMatches = txt.includes(term);
+    if (sectionMatches) {
+      sec.classList.remove('hidden');
+      sec.classList.add('open', 'search-match');
+      anyMatch = true;
+
+      // hide steps that don't match (within section)
+      sec.querySelectorAll('[data-step]').forEach(step => {
+        const stepTxt = step.textContent.toLowerCase();
+        const titleTxt = sec.querySelector('.section-title').textContent.toLowerCase();
+        // if section title matches the term, show all steps; else only matching steps
+        if (titleTxt.includes(term) || stepTxt.includes(term)) {
+          step.classList.remove('hidden');
+        } else {
+          step.classList.add('hidden');
+        }
+      });
+    } else {
+      sec.classList.add('hidden');
+      sec.classList.remove('search-match');
+    }
+  });
+
+  noRes.classList.toggle('show', !anyMatch);
+}
+
+/* go */
+init();
+</script>
+</body>
+</html>
